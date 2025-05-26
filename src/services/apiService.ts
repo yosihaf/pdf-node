@@ -3,7 +3,11 @@ import { BookSettingsType, UrlDataType, BookResponse } from '../types';
 
 // כתובת ה-API שלך - עדכן לפי הצורך
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
-const APP_API_URL_hamichlol = 'https://dev.hamichlol.org.il/w/rest.php/v1/page';
+const urlRestHamichlol = process.env.REACT_APP_API_REST_URL_HAMICHLOL || 'https://dev.hamichlol.org.il/w/rest.php/v1/page';
+
+console.log(urlRestHamichlol)
+console.log(API_BASE_URL)
+
 /**
  * שליחת בקשה ליצירת ספר מרשימת דפים
  */
@@ -15,11 +19,11 @@ export const createBookFromPages = async (
 ): Promise<BookResponse> => {
   try {
     const requestData = {
-      "wiki_pages": 
+      "wiki_pages":
         urlsList.map(item => item.url).join(',').split(',')
       ,
       "book_title": bookSettings.title,
-      "base_url": APP_API_URL_hamichlol
+      "base_url": urlRestHamichlol
     };
 
     console.log('שולח בקשה ליצירת ספר:', requestData);
