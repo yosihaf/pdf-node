@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+/* src/styles/UrlInput.css - עודכן */
+
+>>>>>>> f070542286e53998c65002eb5b602a74cb76980d
 .url-input {
     background-color: #f8f9fa;
     padding: 1.5rem;
@@ -10,6 +15,149 @@
     margin-bottom: 1rem;
     color: #2c3e50;
     font-weight: 600;
+<<<<<<< HEAD
+=======
+    text-align: center;
+}
+
+/* בוחר מצב קלט */
+.input-mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background-color: #e9ecef;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+}
+
+.mode-button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    background-color: transparent;
+    color: #6c757d;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-button:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: #495057;
+}
+
+.mode-button.active {
+    background-color: #007bff;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.mode-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* תיאור מצב */
+.mode-description {
+    font-size: 0.9rem;
+    color: #4a5568;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+    text-align: center;
+    padding: 0.75rem;
+    background-color: #e3f2fd;
+    border-radius: 0.375rem;
+    border-left: 4px solid #2196f3;
+}
+
+/* מצב קטגוריה */
+.category-mode {
+    margin-bottom: 1.5rem;
+}
+
+/* מצב חיפוש */
+.search-mode {
+    margin-bottom: 1.5rem;
+}
+
+/* דפים שנבחרו */
+.selected-pages {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.selected-pages h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.selected-pages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.selected-page-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.selected-page-item:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    flex: 1;
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: right;
+}
+
+.remove-page-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    margin-left: 0.5rem;
+}
+
+.remove-page-button:hover:not(:disabled) {
+    background-color: #c82333;
+    transform: scale(1.1);
+}
+
+.remove-page-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* מצב הזנה ידנית */
+.manual-mode {
+    margin-bottom: 1.5rem;
+>>>>>>> f070542286e53998c65002eb5b602a74cb76980d
 }
 
 .url-input-help {
@@ -17,25 +165,49 @@
     color: #4a5568;
     margin-bottom: 1rem;
     line-height: 1.5;
+<<<<<<< HEAD
 }
 
 .url-input code {
     background-color: #edf2f7;
+=======
+    padding: 0.75rem;
+    background-color: #fff3cd;
+    border-radius: 0.375rem;
+    border-left: 4px solid #ffc107;
+}
+
+.url-input code {
+    background-color: #e9ecef;
+>>>>>>> f070542286e53998c65002eb5b602a74cb76980d
     padding: 0.2rem 0.4rem;
     border-radius: 0.25rem;
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.85rem;
+<<<<<<< HEAD
+=======
+    color: #e83e8c;
+>>>>>>> f070542286e53998c65002eb5b602a74cb76980d
 }
 
 .url-input textarea {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #cbd5e0;
+<<<<<<< HEAD
     border-radius: 0.25rem;
+=======
+    border-radius: 0.375rem;
+>>>>>>> f070542286e53998c65002eb5b602a74cb76980d
     font-size: 0.9rem;
     resize: vertical;
     margin-bottom: 1rem;
     font-family: 'Courier New', Courier, monospace;
+<<<<<<< HEAD
+=======
+    background-color: white;
+    min-height: 200px;
+>>>>>>> f070542286e53998c65002eb5b602a74cb76980d
 }
 
 .url-input textarea:focus {
@@ -44,6 +216,7 @@
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
+<<<<<<< HEAD
 .url-input button {
     background-color: #3498db;
     color: white;
@@ -64,3 +237,75 @@
     background-color: #a0aec0;
     cursor: not-allowed;
 }
+=======
+.url-input textarea:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* כפתור שליחה */
+.submit-button {
+    width: 100%;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+}
+
+.submit-button:hover:not(:disabled) {
+    background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.submit-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* טיפים לשימוש */
+.usage-tips {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.usage-tips h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.usage-tips ul {
+    margin: 0;
+    padding-right: 1.5rem;
+    list-style-type: disc;
+}
+
+.usage-tips li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+.usage-tips li:last-child {
+    margin-bottom: 0;
+}
+
+.usage-tips strong {
+    color: #2c3e50;
+    font-weight: 600;
+}
+>>>>>>> f070542286e53998c65002eb5b602a74cb76980d
