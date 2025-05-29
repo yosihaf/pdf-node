@@ -12,7 +12,7 @@ const Header: React.FC = () => {
       <div className="header-content">
         <Link to="/" className="logo">
           <h1>יצירת ספר PDF</h1>
-          <p className="subtitle">כולל תמיכה מיוחדת באתר המיכלול!</p>
+          <p className="subtitle">כולל תמיכה מיוחדת באתר המכלול!</p>
         </Link>
         
         <nav className="main-navigation">

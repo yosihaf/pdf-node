@@ -25,7 +25,7 @@ const App: React.FC = () => {
         </main>
         
         <footer>
-          <p>טיפ: עבור דפים מהמיכלול, אפשר להשתמש ישירות בכתובת הדף, לדוגמה: https://www.hamichlol.org.il/הר</p>
+          <p>טיפ: עבור דפים מהמכלול, אפשר להשתמש ישירות בכתובת הדף, לדוגמה: https://www.hamichlol.org.il/הר</p>
         </footer>
       </div>
     </Router>

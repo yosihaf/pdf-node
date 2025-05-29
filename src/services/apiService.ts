@@ -145,7 +145,7 @@ export const waitForTaskCompletion = async (
       if (onStatusUpdate) {
         const statusMessages = {
           'processing': `מעבד דף ${attempt}... (${message})`,
-          'downloading': 'מוריד תוכן מהמיכלול...',
+          'downloading': 'מוריד תוכן מהמכלול...',
           'generating': 'יוצר את קובץ ה-PDF...',
           'completed': 'הספר הושלם בהצלחה!',
           'failed': 'יצירת הספר נכשלה',

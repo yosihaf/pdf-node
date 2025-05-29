@@ -125,7 +125,7 @@ const UrlInput: React.FC<UrlInputProps> = ({ onSubmit, isLoading }) => {
           
           <MediaWikiSearch
             onPageSelect={handlePageSelect}
-            baseApiUrl={config.mediaWiki.apiUrl}
+            baseApiUrl={config.mediaWiki.searchApiUrl}
             placeholder="הקלד לחיפוש דפים..."
             disabled={isLoading}
             enableCategoryFilter={true}
@@ -165,7 +165,7 @@ const UrlInput: React.FC<UrlInputProps> = ({ onSubmit, isLoading }) => {
           </p>
           
           <CategoryPageSelector
-            baseApiUrl={config.mediaWiki.apiUrl}
+            baseApiUrl={config.mediaWiki.searchApiUrl}
             onPagesSelected={handleCategoryPagesSelect}
             disabled={isLoading}
           />
@@ -241,7 +241,7 @@ const UrlInput: React.FC<UrlInputProps> = ({ onSubmit, isLoading }) => {
             <strong>הזנה ידנית:</strong> מתאים לכתובות URL חיצוניות או כאשר אתה יודע בדיוק את השמות.
           </li>
           <li>
-            עבור דפים מהמיכלול, אפשר להשתמש ישירות בשם הדף, לדוגמה: "הר" או "ישראל".
+            עבור דפים מהמכלול, אפשר להשתמש ישירות בשם הדף, לדוגמה: "הר" או "ישראל".
           </li>
         </ul>
       </div>

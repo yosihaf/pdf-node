@@ -4,29 +4,29 @@ import DOMPurify from 'dompurify';
 import { PageContentType } from '../types';
 
 /**
- * פונקציה לגרידת תוכן מהמיכלול באמצעות ה-API שלו
+ * פונקציה לגרידת תוכן מהמכלול באמצעות ה-API שלו
  * @param pageName שם הדף במיכלול (לדוגמה: "הר" או "ישראל")
  * @returns הבטחה המכילה את תוכן הדף מעובד ומנוקה
  */
 export const fetchHamichlolPage = async (pageName: string): Promise<PageContentType> => {
     try {
         //  `https://www.hamichlol.org.il/w/rest.php/v1/page/encodeURIComponent(pageName)/html`
-        // URL ל-API של המיכלול, מוגדר לפי הפרמטרים הנכונים
+        // URL ל-API של המכלול, מוגדר לפי הפרמטרים הנכונים
         const apiUrl = `https://dev.hamichlol.org.il/w/rest.php/v1/page/${encodeURIComponent(pageName)}/html?origin=*`;
 
-        console.log(`שולח בקשה ל-API של המיכלול: ${apiUrl}`);
+        console.log(`שולח בקשה ל-API של המכלול: ${apiUrl}`);
 
         // שליחת הבקשה ל-API
         const response = await axios.get(apiUrl);
 
         // בדיקה אם ה-API החזיר שגיאה
         if (response.data.error) {
-            throw new Error(`שגיאת API של המיכלול: ${response.data.error.info}`);
+            throw new Error(`שגיאת API של המכלול: ${response.data.error.info}`);
         }
 
         // בדיקה אם התשובה מכילה את הנתונים הצפויים
         if (!response.data.parse || !response.data.parse.text || !response.data.parse.text['*']) {
-            throw new Error('מבנה תשובה לא צפוי מ-API של המיכלול');
+            throw new Error('מבנה תשובה לא צפוי מ-API של המכלול');
         }
 
         // חילוץ הHTML מהתשובה
@@ -41,13 +41,13 @@ export const fetchHamichlolPage = async (pageName: string): Promise<PageContentT
             content: cleanedContent
         };
     } catch (error) {
-        console.error(`שגיאה בטעינת הדף '${pageName}' מהמיכלול:`, error);
+        console.error(`שגיאה בטעינת הדף '${pageName}' מהמכלול:`, error);
         throw error;
     }
 };
 
 /**
- * פונקציה לניקוי ועיבוד התוכן מה-API של המיכלול
+ * פונקציה לניקוי ועיבוד התוכן מה-API של המכלול
  * @param htmlContent תוכן HTML מקורי
  * @returns טקסט מעובד ומנוקה
  */
@@ -111,7 +111,7 @@ const removeUnwantedElements = (doc: Document): void => {
 };
 
 /**
- * פונקציה לחילוץ שם דף מתוך URL של המיכלול
+ * פונקציה לחילוץ שם דף מתוך URL של המכלול
  * @param url כתובת URL של דף במיכלול
  * @returns שם הדף
  */
@@ -132,7 +132,7 @@ export const extractHamichlolPageName = (url: string): string | null => {
 };
 
 /**
- * פונקציה שבודקת אם URL הוא של המיכלול
+ * פונקציה שבודקת אם URL הוא של המכלול
  * @param url כתובת URL לבדיקה
  * @returns האם ה-URL שייך למיכלול
  */
@@ -140,12 +140,12 @@ export const isHamichlolUrl = (url: string): boolean => {
     return url.includes('hamichlol.org.il');
 };
 
-// עדכון לפונקציה הכללית fetchPageContent שתשתמש בשירות של המיכלול
+// עדכון לפונקציה הכללית fetchPageContent שתשתמש בשירות של המכלול
 
 
 export const fetchPageContent = async (url: string): Promise<PageContentType> => {
     try {
-        // בדיקה אם זהו URL של המיכלול
+        // בדיקה אם זהו URL של המכלול
         if (isHamichlolUrl(url)) {
             console.log(url);
             // חילוץ שם הדף מה-URL
@@ -155,12 +155,12 @@ export const fetchPageContent = async (url: string): Promise<PageContentType> =>
 
 
             if (pageName) {
-                // אם זה אכן דף מהמיכלול, השתמש בשירות המיכלול
+                // אם זה אכן דף מהמכלול, השתמש בשירות המכלול
                 return await fetchHamichlolPage(pageName);
             }
         }
 
-        // אם זה לא URL של המיכלול, השתמש בשיטה הכללית לגרידת דפי אינטרנט
+        // אם זה לא URL של המכלול, השתמש בשיטה הכללית לגרידת דפי אינטרנט
         return await fetchRegularWebPage(url);
     } catch (error) {
         console.error(`שגיאה בטעינת ${url}:`, error);
@@ -169,7 +169,7 @@ export const fetchPageContent = async (url: string): Promise<PageContentType> =>
 };
 
 /**
- * פונקציה לגרידת דף אינטרנט רגיל (לא מהמיכלול)
+ * פונקציה לגרידת דף אינטרנט רגיל (לא מהמכלול)
  * @param url כתובת URL של דף אינטרנט
  * @returns תוכן הדף
  */
