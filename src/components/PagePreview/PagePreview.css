@@ -35,8 +35,6 @@
 
 .page-preview a:hover {
   text-decoration: underline;
-<<<<<<< HEAD
-=======
 }
 
 /* PagePreview.css */
@@ -174,5 +172,5 @@
   .page-title {
     font-size: 15px;
   }
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
+
 }

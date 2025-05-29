@@ -1,6 +1,6 @@
 import React from 'react';
-import { PageType } from '../types';
-import '../styles/PagePreview.css';
+import { PageType } from '../../types';
+import './PagePreview.css';
 
 // הגדרת ממשק לפרופס שהקומפוננטה מקבלת
 interface PagePreviewProps {

@@ -1,11 +1,11 @@
 
 // src/components/UrlInput.tsx - גרסה מלאה עם 3 מצבים
 import React, { useState, ChangeEvent } from 'react';
-import { UrlDataType } from '../types';
-import MediaWikiSearch from './MediaWikiSearch';
-import CategoryPageSelector from './CategoryPageSelector';
-import config, { validateConfig } from '../config/config';
-import '../styles/UrlInput.css';
+import { UrlDataType } from '../../types';
+import MediaWikiSearch from '../MediaWikiSearch';
+import CategoryPageSelector from '../CategoryPageSelector';
+import config, { validateConfig } from '../../config/config';
+import './UrlInput.css';
 
 interface UrlInputProps {
   onSubmit: (urlsList: UrlDataType[]) => void;

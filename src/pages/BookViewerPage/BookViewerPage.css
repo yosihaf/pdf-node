@@ -1,0 +1,129 @@
+.book-viewer-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.book-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.back-button {
+  background: #6c757d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background: #5a6268;
+  text-decoration: none;
+  color: white;
+}
+
+.book-meta {
+  flex: 1;
+}
+
+.book-meta h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.book-meta p {
+  color: #6c757d;
+  margin: 0.25rem 0;
+}
+
+.book-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.download-button {
+  background: #28a745;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.download-button:hover {
+  background: #218838;
+  text-decoration: none;
+  color: white;
+}
+
+.book-status-info {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.book-status-info h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.book-status-info p {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+.refresh-button {
+  background: #007bff;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.refresh-button:hover {
+  background: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .book-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .back-button {
+    align-self: flex-start;
+  }
+
+  .book-meta h2 {
+    font-size: 1.5rem;
+  }
+
+  .book-actions {
+    justify-content: center;
+  }
+}

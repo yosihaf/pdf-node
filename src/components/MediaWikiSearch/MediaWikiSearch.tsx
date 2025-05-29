@@ -1,7 +1,7 @@
 // src/components/MediaWikiSearch.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { UrlDataType } from '../types';
-import '../styles/MediaWikiSearch.css';
+import { UrlDataType } from '../../types';
+import './MediaWikiSearch.css';
 
 interface MediaWikiSearchProps {
   onPageSelect: (page: UrlDataType) => void;

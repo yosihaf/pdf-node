@@ -1,7 +1,7 @@
-// src/components/CategoryPageSelector.tsx
+// src/components/CategoryPageSelector.tsx - מתוקן
 import React, { useState, useEffect } from 'react';
-import { UrlDataType } from '../types';
-import '../styles/CategoryPageSelector.css';
+import { UrlDataType } from '../../types';
+import './CategoryPageSelector.css';
 
 interface CategoryPage {
   pageid: number;
@@ -26,7 +26,11 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
   const [categoryPages, setCategoryPages] = useState<CategoryPage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  
+  // שינוי: הפרדת state לשני שדות חיפוש נפרדים
+  const [categorySearchTerm, setCategorySearchTerm] = useState<string>(''); // חיפוש קטגוריות
+  const [pagesFilterTerm, setPagesFilterTerm] = useState<string>(''); // סינון דפים
+  
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [showCategorySuggestions, setShowCategorySuggestions] = useState<boolean>(false);
 
@@ -67,7 +71,6 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
       const pages: CategoryPage[] = [];
       let continueToken: string | undefined;
 
-      // טוען את כל הדפים (עם pagination)
       do {
         const apiUrl = new URL(baseApiUrl);
         apiUrl.searchParams.set('action', 'query');
@@ -76,7 +79,7 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
         apiUrl.searchParams.set('cmtitle', `קטגוריה:${categoryName}`);
         apiUrl.searchParams.set('cmlimit', '50');
         apiUrl.searchParams.set('cmprop', 'ids|title|timestamp');
-        apiUrl.searchParams.set('cmtype', 'page'); // רק דפים, לא תת-קטגוריות
+        apiUrl.searchParams.set('cmtype', 'page');
         apiUrl.searchParams.set('origin', '*');
 
         if (continueToken) {
@@ -97,13 +100,12 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
             pageid: page.pageid,
             title: page.title,
             timestamp: page.timestamp,
-            selected: false // ברירת מחדל - לא נבחר
+            selected: false
           }));
 
           pages.push(...categoryMembers);
         }
 
-        // בדיקה אם יש עוד דפים
         continueToken = data.continue?.cmcontinue;
 
       } while (continueToken);
@@ -123,6 +125,7 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
   const handleCategorySelect = async (categoryName: string) => {
     setSelectedCategory(categoryName);
     setShowCategorySuggestions(false);
+    setCategorySearchTerm(categoryName); // עדכון שדה החיפוש
 
     try {
       const pages = await loadCategoryPages(categoryName);
@@ -133,9 +136,9 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
     }
   };
 
-  // טיפול בשינוי בשדה החיפוש
+  // טיפול בשינוי בשדה חיפוש הקטגוריות
   const handleCategorySearchChange = async (value: string) => {
-    setSearchTerm(value);
+    setCategorySearchTerm(value); // עדכון state נפרד לחיפוש קטגוריות
     
     if (value.length >= 2) {
       const categories = await searchCategories(value);
@@ -147,7 +150,12 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
     }
   };
 
-  // טיפול בסימון/ביטול סימון דף בודד
+  // טיפול בשינוי בשדה סינון הדפים
+  const handlePagesFilterChange = (value: string) => {
+    setPagesFilterTerm(value); // עדכון state נפרד לסינון דפים
+  };
+
+  // טיפול בסימון/ביטול sימון דף בודד
   const togglePageSelection = (pageId: number) => {
     setCategoryPages(prev => 
       prev.map(page => 
@@ -184,9 +192,9 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
     onPagesSelected(selectedPages);
   };
 
-  // סינון דפים לפי חיפוש
+  // סינון דפים לפי חיפוש - עכשיו משתמש ב-pagesFilterTerm
   const filteredPages = categoryPages.filter(page =>
-    page.title.toLowerCase().includes(searchTerm.toLowerCase())
+    page.title.toLowerCase().includes(pagesFilterTerm.toLowerCase())
   );
 
   const selectedCount = categoryPages.filter(page => page.selected).length;
@@ -202,7 +210,7 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
           <input
             id="category-search"
             type="text"
-            value={searchTerm}
+            value={categorySearchTerm} // שימוש ב-state נפרד
             onChange={(e) => handleCategorySearchChange(e.target.value)}
             placeholder="הקלד שם קטגוריה..."
             disabled={disabled}
@@ -278,13 +286,13 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
             </div>
           </div>
 
-          {/* חיפוש בתוך הדפים */}
+          {/* חיפוש בתוך הדפים - עכשיו נפרד */}
           <div className="pages-filter">
             <input
               type="text"
               placeholder="חפש בתוך הדפים..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={pagesFilterTerm} // שימוש ב-state נפרד
+              onChange={(e) => handlePagesFilterChange(e.target.value)}
               disabled={disabled}
               className="pages-filter-input"
             />

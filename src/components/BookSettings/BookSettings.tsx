@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
-import { BookSettingsType } from '../types';
-import '../styles/BookSettings.css';
+import { BookSettingsType } from '../../types';
+import './BookSettings.css';
 
 interface BookSettingsProps {
   settings: BookSettingsType;

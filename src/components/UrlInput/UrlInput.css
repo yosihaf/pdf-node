@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-=======
-/* src/styles/UrlInput.css - עודכן */
-
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
 .url-input {
     background-color: #f8f9fa;
     padding: 1.5rem;
@@ -15,8 +10,7 @@
     margin-bottom: 1rem;
     color: #2c3e50;
     font-weight: 600;
-<<<<<<< HEAD
-=======
+
     text-align: center;
 }
 
@@ -157,7 +151,7 @@
 /* מצב הזנה ידנית */
 .manual-mode {
     margin-bottom: 1.5rem;
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
+
 }
 
 .url-input-help {
@@ -165,12 +159,6 @@
     color: #4a5568;
     margin-bottom: 1rem;
     line-height: 1.5;
-<<<<<<< HEAD
-}
-
-.url-input code {
-    background-color: #edf2f7;
-=======
     padding: 0.75rem;
     background-color: #fff3cd;
     border-radius: 0.375rem;
@@ -179,35 +167,31 @@
 
 .url-input code {
     background-color: #e9ecef;
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
+
     padding: 0.2rem 0.4rem;
     border-radius: 0.25rem;
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.85rem;
-<<<<<<< HEAD
-=======
+
     color: #e83e8c;
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
+
 }
 
 .url-input textarea {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #cbd5e0;
-<<<<<<< HEAD
-    border-radius: 0.25rem;
-=======
+
     border-radius: 0.375rem;
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
+
     font-size: 0.9rem;
     resize: vertical;
     margin-bottom: 1rem;
     font-family: 'Courier New', Courier, monospace;
-<<<<<<< HEAD
-=======
+
     background-color: white;
     min-height: 200px;
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
+
 }
 
 .url-input textarea:focus {
@@ -216,28 +200,7 @@
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
-<<<<<<< HEAD
-.url-input button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 0.25rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
 
-.url-input button:hover:not(:disabled) {
-    background-color: #2980b9;
-}
-
-.url-input button:disabled {
-    background-color: #a0aec0;
-    cursor: not-allowed;
-}
-=======
 .url-input textarea:disabled {
     background-color: #f8f9fa;
     cursor: not-allowed;
@@ -308,4 +271,4 @@
     color: #2c3e50;
     font-weight: 600;
 }
->>>>>>> f070542286e53998c65002eb5b602a74cb76980d
+
