@@ -30,7 +30,6 @@ const PublicBooksPage: React.FC = () => {
     book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     book.author.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  console.log(filteredBooks);
 
   return (
     <div className="public-books-page">
@@ -77,7 +76,7 @@ const PublicBooksPage: React.FC = () => {
                 </div>
                 <div className="book-actions">
                   <Link
-                    to={`/book/${book.id}`}
+                    to={`/book${book.id}`}
                     className="view-book-button"
                   >
                     צפה בספר

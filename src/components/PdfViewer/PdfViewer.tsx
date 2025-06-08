@@ -31,7 +31,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
     
     // בניית URL לתצוגה - משתמש ב-viewUrl אם קיים, אחרת ב-download_url
     let viewUrl = bookResponse.view_url || bookResponse.download_url;
-    console.log(viewUrl);
     
     if (viewUrl) {
       // אם זה נתיב יחסי, נוסיף את הבסיס
@@ -47,7 +46,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
         finalUrl = `${viewUrl}#view=FitH&toolbar=1&navpanes=1`;
       }
       
-      console.log('URL סופי לתצוגה:', finalUrl);
       setPdfUrl(finalUrl);
     } else {
       setError('לא נמצא URL לתצוגת הספר');
@@ -97,7 +95,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
         download_url = `${baseUrl}${download_url}`;
       }
       
-      console.log('מוריד קובץ מ:', download_url);
       const link = document.createElement('a');
       link.href = download_url;
       link.download = `${bookResponse.title || 'book'}.pdf`;
@@ -118,7 +115,6 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
   };
 
   const handleIframeLoad = (): void => {
-    console.log('iframe נטען בהצלחה');
     setLoading(false);
     setError(null);
   };

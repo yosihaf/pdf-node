@@ -1,3 +1,4 @@
+// src/App.tsx - עם routing פשוט ונקי
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Layout/Header';
@@ -20,7 +21,12 @@ const App: React.FC = () => {
             <Route path="/create" element={<CreateBookPage />} />
             <Route path="/my-books" element={<MyBooksPage />} />
             <Route path="/public-books" element={<PublicBooksPage />} />
-            <Route path="/book/:bookId" element={<BookViewerPage />} />
+            
+            {/* Route חדש לפי הבקשה */}
+            <Route path="/view/:pdfPath/:title" element={<BookViewerPage />} />
+            
+            {/* Route נוסף למקרים מיוחדים */}
+            <Route path="/book/*" element={<BookViewerPage />} />
           </Routes>
         </main>
         

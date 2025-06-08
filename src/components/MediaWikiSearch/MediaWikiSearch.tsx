@@ -212,11 +212,9 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
           excerpt: `דף בקטגוריה: ${categoryName}`
         }));
 
-        console.log(`✅ נמצאו ${results.length} דפים בקטגוריה`);
         return results;
       }
 
-      console.log('⚠️ לא נמצאו דפים בקטגוריה');
       return [];
 
     } catch (error) {
@@ -228,7 +226,6 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
   // פונקציה לחיפוש דפים רגיל
   const searchPagesRegular = async (query: string): Promise<SearchResult[]> => {
     try {
-      console.log(`🔍 חיפוש רגיל עבור "${query}"`);
       
       const searchUrl = baseApiUrl;
       const params = new URLSearchParams({
@@ -237,10 +234,8 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
       });
 
       const fullUrl = `${searchUrl}?${params.toString()}`;
-      console.log('🔍 URL חיפוש רגיל:', fullUrl);
 
       const data: SearchResponse = await fetchWithCorsHandling(fullUrl);
-      console.log('📋 תשובת חיפוש רגיל:', data);
 
       return data.pages || [];
 
@@ -317,7 +312,6 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
 
   // טיפול בשינוי קטגוריה
   const handleCategoryChange = (category: string) => {
-    console.log(`🏷️ שינוי קטגוריה ל: "${category}"`);
     setSelectedCategory(category);
     setShowCategoryDropdown(false);
 

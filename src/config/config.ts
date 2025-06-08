@@ -53,38 +53,19 @@ export const config = {
 
 // פונקציה לבדיקת ההגדרות
 export const validateConfig = (): boolean => {
-  console.log('🔧 Configuration loaded:', {
-    apiBaseUrl: config.api.baseUrl,
-    mediaWikiUrl: config.api.mediaWikiUrl,
-    hamichlolRestUrl: config.api.hamichlolRestUrl,
-    hamichlolSearchUrl: config.api.hamichlolSearchUrl,
-    environment: process.env.NODE_ENV,
-    
-    // בדיקת משתני סביבה
-    envVars: {
-      REACT_APP_API_URL: process.env.REACT_APP_API_URL,
-      REACT_APP_MEDIAWIKI_API_URL: process.env.REACT_APP_MEDIAWIKI_API_URL,
-      REACT_APP_HAMICHLOL_REST_URL: process.env.REACT_APP_HAMICHLOL_REST_URL,
-      REACT_APP_HAMICHLOL_SEARCH_URL: process.env.REACT_APP_HAMICHLOL_SEARCH_URL,
-    }
-  });
   
   if (!config.mediaWiki.searchApiUrl) {
-    console.error('❌ MediaWiki Search API URL is not configured!');
     return false;
   }
   
   if (!config.mediaWiki.apiUrl) {
-    console.error('❌ MediaWiki API URL is not configured!');
     return false;
   }
   
   if (!config.api.baseUrl) {
-    console.error('❌ API Base URL is not configured!');
     return false;
   }
   
-  console.log('✅ Configuration is valid');
   return true;
 };
 

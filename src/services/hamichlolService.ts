@@ -14,7 +14,6 @@ export const fetchHamichlolPage = async (pageName: string): Promise<PageContentT
         // URL ל-API של המכלול, מוגדר לפי הפרמטרים הנכונים
         const apiUrl = `https://dev.hamichlol.org.il/w/rest.php/v1/page/${encodeURIComponent(pageName)}/html?origin=*`;
 
-        console.log(`שולח בקשה ל-API של המכלול: ${apiUrl}`);
 
         // שליחת הבקשה ל-API
         const response = await axios.get(apiUrl);
@@ -147,7 +146,6 @@ export const fetchPageContent = async (url: string): Promise<PageContentType> =>
     try {
         // בדיקה אם זהו URL של המכלול
         if (isHamichlolUrl(url)) {
-            console.log(url);
             // חילוץ שם הדף מה-URL
             const pageName = extractHamichlolPageName(url);
 
@@ -189,7 +187,6 @@ const fetchRegularWebPage = async (url: string): Promise<PageContentType> => {
 
 
         const mainContent = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('body');
-        console.log(mainContent);
         /*if (mainContent) {
             // ניקוי התוכן
             const cleanHtml = DOMPurify.sanitize(mainContent.innerHTML);
@@ -200,7 +197,6 @@ const fetchRegularWebPage = async (url: string): Promise<PageContentType> => {
             };
         }*/
     } catch (error) {
-        console.log('ניסיון ישיר נכשל, מנסה עם פרוקסי CORS...');
 
         // ניסיון שני - עם פרוקסי
         const response = await axios.get(`${corsProxy}${encodeURIComponent(url)}`);
@@ -208,12 +204,10 @@ const fetchRegularWebPage = async (url: string): Promise<PageContentType> => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(response.data, 'text/html');
         const mainContent: HTMLElement | null = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('body');
-        console.log(mainContent);
 
         if (mainContent) { // חובה לוודא ש-mainContent אינו null
             const sections = mainContent.querySelectorAll('section[data-mw-section-id]');
 
-            console.log(`נמצאו ${sections.length} סקציות לעיבוד.`, sections);
 
             // ה- sections הוא אוסף של אלמנטים. נעבור על כל אחד מהם:
             sections.forEach((singleSectionElement, index) => {
@@ -221,7 +215,6 @@ const fetchRegularWebPage = async (url: string): Promise<PageContentType> => {
                 // 'index' הוא המיקום שלו ברשימה (0, 1, 2...)
 
                 const sectionId = singleSectionElement.id || `section-באינדקס-${index}`;
-              //  console.log(`--- מעבד סקציה: ${sectionId} ---`);
 
                 try {
                     // 1. קח את ה-HTML הפנימי של הסקציה הנוכחית
@@ -236,27 +229,12 @@ const fetchRegularWebPage = async (url: string): Promise<PageContentType> => {
                     //    זה ישנה את ה-DOM בפועל עבור הסקציה הזו.
                     singleSectionElement.innerHTML = cleanHtmlOfSection;
 
-                    // (אופציונלי) בדיקה אם התוכן השתנה
-                    if (originalHtmlOfSection !== cleanHtmlOfSection) {
-                        console.log(`   התוכן של סקציה ${sectionId} עבר שינוי לאחר סניטציה.`,originalHtmlOfSection);
-                        console.log(`   התוכן של סקציה ${sectionId} עבר שינוי לאחר סניטציה.`,cleanHtmlOfSection);
-                        // להצצה בשינוי (להסיר בסביבת פרודקשן אם לא צריך):
-                        // console.log("   HTML מקורי (קטע):", originalHtmlOfSection.substring(0, 100) + "...");
-                        // console.log("   HTML נקי (קטע):", cleanHtmlOfSection.substring(0, 100) + "...");
-                    } else {
-                        console.log(`   התוכן של סקציה ${sectionId} לא השתנה (כבר היה נקי או ש-DOMPurify לא מצא מה לשנות).`);
-                    }
-
                 } catch (error) {
                     console.error(`   אירעה שגיאה בעת סניטציה של סקציה ${sectionId}:`, error);
                     // אתה יכול להחליט מה לעשות כאן - אולי להמשיך לסקציה הבאה,
                     // או לעצור את כל התהליך. הלולאה תמשיך כברירת מחדל.
                 }
             });
-
-            if (sections.length > 0) {
-                console.log("--- סיום עיבוד כל הסקציות ---", sections);
-            }
             return {
                 title: doc.title,
                 content: sections
