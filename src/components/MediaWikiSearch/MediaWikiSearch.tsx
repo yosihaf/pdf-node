@@ -72,36 +72,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
   const categoryRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
 
-  // פונקציה לקבלת תמונות עבור תוצאות חיפוש
-  const getPageImages = async (pageIds: number[]): Promise<Record<number, any>> => {
-    if (pageIds.length === 0) return {};
-
-    try {
-      const imageUrl = new URL(baseApiUrl);
-      imageUrl.searchParams.set('action', 'query');
-      imageUrl.searchParams.set('format', 'json');
-      imageUrl.searchParams.set('pageids', pageIds.join('|'));
-      imageUrl.searchParams.set('prop', 'pageimages|pageterms');
-      imageUrl.searchParams.set('piprop', 'thumbnail');
-      imageUrl.searchParams.set('pithumbsize', '150');
-      imageUrl.searchParams.set('pilimit', pageIds.length.toString());
-      imageUrl.searchParams.set('wbptterms', 'description');
-      imageUrl.searchParams.set('origin', '*');
-
-      console.log('🖼️ מבקש תמונות:', imageUrl.toString());
-
-      const response = await fetch(imageUrl.toString());
-      if (!response.ok) return {};
-
-      const data = await response.json();
-      return data.query?.pages || {};
-    } catch (error) {
-      console.error('שגיאה בקבלת תמונות:', error);
-      return {};
-    }
-  };
-
-  // פונקציה ליצירת URL לפתיחת דף בהמיכלול
+  // פונקציה ליצירת URL לפתיחת דף בהמכלול
   const getPageUrl = (pageTitle: string): string => {
     const baseUrl = baseApiUrl.replace('/w/api.php', '');
     return `${baseUrl}/${encodeURIComponent(pageTitle)}`;
@@ -634,7 +605,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="action-btn view-btn"
-                  title="פתח בהמיכלול"
+                  title="פתח בהמכלול"
                   onClick={(e) => e.stopPropagation()}
                 >
                   🔗

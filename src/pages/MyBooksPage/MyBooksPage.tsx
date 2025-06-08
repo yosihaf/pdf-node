@@ -17,6 +17,8 @@ const MyBooksPage: React.FC = () => {
     try {
       setLoading(true);
       const userBooks = await getUserBooks();
+      console.log(userBooks);
+      
       setBooks(userBooks);
     } catch (error) {
       setError('שגיאה בטעינת הספרים');
@@ -64,25 +66,26 @@ const MyBooksPage: React.FC = () => {
         </div>
       ) : (
         <div className="books-grid">
-          {books.map((book) => (
-            <div key={book.task_id} className="book-card">
+          {books.map((book) => {
+            console.log(book.view_url);
+
+            return (<div key={book.task_id} className="book-card">
               <div className="book-cover">
                 <div className="book-icon">📖</div>
               </div>
               <div className="book-info">
-                <h3 className="book-title">{book.message || 'ספר ללא כותרת'}</h3>
-                <p className="book-status">סטטוס: {book.status}</p>
+                <h3 className="book-title">{book.title || 'ספר ללא כותרת'}</h3>
                 <div className="book-actions">
-                  {book.status === 'completed' && (
+                  {(
                     <>
-                      <Link 
-                        to={`/book/${book.task_id}`} 
+                      <Link
+                        to={`/book/${book.view_url}`}
                         className="view-book-button"
                       >
                         צפה בספר
                       </Link>
-                      <a 
-                        href={book.downloadUrl} 
+                      <a
+                        href={book.download_url}
                         className="download-button"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -93,8 +96,9 @@ const MyBooksPage: React.FC = () => {
                   )}
                 </div>
               </div>
-            </div>
-          ))}
+            </div>)
+          }
+          )}
         </div>
       )}
     </div>

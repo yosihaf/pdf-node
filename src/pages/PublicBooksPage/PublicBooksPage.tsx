@@ -12,7 +12,7 @@ interface PublicBook {
 }
 
 const PublicBooksPage: React.FC = () => {
-  const [books, setBooks] = useState<PublicBook[]>([]);
+  const [books] = useState<PublicBook[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'rating'>('newest');
@@ -30,6 +30,7 @@ const PublicBooksPage: React.FC = () => {
     book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     book.author.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  console.log(filteredBooks);
 
   return (
     <div className="public-books-page">
@@ -75,8 +76,8 @@ const PublicBooksPage: React.FC = () => {
                   <span>📥 {book.downloads}</span>
                 </div>
                 <div className="book-actions">
-                  <Link 
-                    to={`/book/${book.id}`} 
+                  <Link
+                    to={`/book/${book.id}`}
                     className="view-book-button"
                   >
                     צפה בספר

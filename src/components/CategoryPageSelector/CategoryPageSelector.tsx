@@ -1,5 +1,5 @@
 // src/components/CategoryPageSelector.tsx - מתוקן
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { UrlDataType } from '../../types';
 import './CategoryPageSelector.css';
 

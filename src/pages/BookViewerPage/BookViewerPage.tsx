@@ -49,7 +49,7 @@ const BookViewerPage: React.FC = () => {
       </div>
     );
   }
-
+console.log(book);
   return (
     <div className="book-viewer-page">
       <div className="book-header">
@@ -57,7 +57,7 @@ const BookViewerPage: React.FC = () => {
           ← חזור לרשימת הספרים
         </Link>
         <div className="book-meta">
-          <h2>{book.message || 'ספר ללא כותרת'}</h2>
+          <h2>{book.title || 'ספר ללא כותרת'}</h2>
           <p>סטטוס: {book.status}</p>
         </div>
       </div>

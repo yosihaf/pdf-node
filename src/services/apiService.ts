@@ -34,18 +34,23 @@ export const createBookFromPages = async (
       },
       timeout: 60000 // timeout של דקה - כי יצירת PDF יכולה לקחת זמן
     });
+
     const TaskCompletion = await waitForTaskCompletion(response.data.task_id, bookSettings.title, onStatusUpdate)
-    console.log(TaskCompletion)
+    console.log('תשובת TaskCompletion:', TaskCompletion)
+
     if (TaskCompletion.status === "completed") {
+      // תיקון הבעיה - בניית ה-URLs הנכונים
+      const baseApiUrl = API_BASE_URL.replace('/api', ''); // הסרת /api מהבסיס
+
       return {
         task_id: TaskCompletion.task_id,
         status: TaskCompletion.status,
-        message: TaskCompletion.message,
-        downloadUrl: `${API_BASE_URL}/pdf${TaskCompletion.downloadUrl}`,
-        viewUrl: `${API_BASE_URL}/pdf${TaskCompletion.downloadUrl}`
+        title: TaskCompletion.title,
+        download_url: `${baseApiUrl}${TaskCompletion.download_url}`, // בניית URL מלא
+        view_url: `${baseApiUrl}${TaskCompletion.view_url}` // בניית URL מלא
       }
     } else {
-      throw new Error(response.data.message || 'שגיאה לא ידועה ביצירת הספר');
+      throw new Error(TaskCompletion.title || 'שגיאה לא ידועה ביצירת הספר');
     }
   } catch (error) {
     console.error('שגיאה בקריאה ל-API:', error);
@@ -106,7 +111,7 @@ export const getUserBooks = async (): Promise<BookResponse[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/books`);
 
-    if (response.data.success) {
+    if (response.data.status === 'success') {      
       return response.data.books;
     } else {
       throw new Error(response.data.message || 'שגיאה בקבלת רשימת הספרים');
@@ -133,10 +138,13 @@ export const waitForTaskCompletion = async (
       console.log(`בודק סטטוס משימה ${taskId} - ניסיון ${attempt}/${maxAttempts}`);
 
       const statusResponse = await axios.get(`${API_BASE_URL}/pdf/status/${taskId}`);
+      console.log('תשובת שרת:', statusResponse.data);
+
       const status = statusResponse.data.status;
       const task_id = statusResponse.data.task_id;
+      // תיקון: לקיחת הנתונים הנכונים מהתשובה
       const download_url = statusResponse.data.download_url;
-      const viewUrl = statusResponse.data.download_url;
+      const view_url = statusResponse.data.view_url;
       const message = statusResponse.data.message || '';
 
       console.log(`סטטוס נוכחי: ${status}`, message ? `- ${message}` : '');
@@ -145,7 +153,7 @@ export const waitForTaskCompletion = async (
       if (onStatusUpdate) {
         const statusMessages = {
           'processing': `מעבד דף ${attempt}... (${message})`,
-          'downloading': 'מוריד תוכן מהמיכלול...',
+          'downloading': 'מוריד תוכן מהמכלול...',
           'generating': 'יוצר את קובץ ה-PDF...',
           'completed': 'הספר הושלם בהצלחה!',
           'failed': 'יצירת הספר נכשלה',
@@ -158,27 +166,13 @@ export const waitForTaskCompletion = async (
       }
 
       if (status === "completed") {
-        // המשימה הושלמה
-        let downloadUrl = statusResponse.data.download_url;
-
-        // אם ה-download_url הוא נתיב יחסי, נבנה את ה-URL המלא
-        if (downloadUrl && !downloadUrl.startsWith('http')) {
-          const baseUrl = API_BASE_URL.replace('/api', ''); // הסרת /api אם קיים
-          downloadUrl = `${baseUrl}${downloadUrl}`;
-        }
-
-        // אם אין download_url, נבנה אותו בעצמנו
-        if (!downloadUrl) {
-          const filename = `${bookTitle.replace(/\s+/g, '-')}`;
-          downloadUrl = `${API_BASE_URL}/pdf/download/${taskId}/${filename}`;
-        }
-
+        // המשימה הושלמה - החזרת הנתונים הנכונים
         return {
           task_id: task_id,
           status: status,
-          message: message,
-          downloadUrl: download_url,
-          viewUrl: viewUrl
+          title: message,
+          download_url: download_url, // החזרת הנתיב היחסי כפי שמגיע מהשרת
+          view_url: view_url // החזרת הנתיב היחסי כפי שמגיע מהשרת
         }
       }
 

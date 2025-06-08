@@ -1,4 +1,4 @@
-// HamichlolBookPdf.tsx - רכיב ליצירת PDF מתוכן המיכלול
+// HamichlolBookPdf.tsx - רכיב ליצירת PDF מתוכן המכלול
 
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
@@ -157,7 +157,7 @@ const stripHtml = (html: string): string => {
   return doc.body.textContent || '';
 };
 
-// רכיב ליצירת PDF מתוכן המיכלול
+// רכיב ליצירת PDF מתוכן המכלול
 const HamichlolBookPdf: React.FC<HamichlolBookPdfProps> = ({ pages, title, subtitle, author }) => {
   // בניית תוכן העניינים
   const tableOfContents: TOCItem[] = pages.map((page, index) => ({
@@ -224,7 +224,7 @@ const HamichlolBookPdf: React.FC<HamichlolBookPdfProps> = ({ pages, title, subti
 
 export default HamichlolBookPdf;
 
-// פונקציה עזר לעיבוד נתוני JSON מהמיכלול ושימוש ברכיב PDF
+// פונקציה עזר לעיבוד נתוני JSON מהמכלול ושימוש ברכיב PDF
 export function createPdfFromHamichlolJson(jsonContent: string, bookInfo: { title: string; subtitle: string; author: string }): React.ReactElement {
   // עיבוד התוכן מה-JSON
   try {
@@ -256,8 +256,8 @@ export function createPdfFromHamichlolJson(jsonContent: string, bookInfo: { titl
       <HamichlolBookPdf
         pages={pages}
         title={bookInfo.title || title}
-        subtitle={bookInfo.subtitle || 'מתוך המיכלול - האנציקלופדיה העברית החופשית'}
-        author={bookInfo.author || 'המיכלול'}
+        subtitle={bookInfo.subtitle || 'מתוך המכלול - האנציקלופדיה העברית החופשית'}
+        author={bookInfo.author || 'המכלול'}
       />
     );
   } catch (error) {
@@ -277,7 +277,7 @@ export function createPdfFromHamichlolJson(jsonContent: string, bookInfo: { titl
         pages={errorPages}
         title="שגיאה בעיבוד התוכן"
         subtitle="לא ניתן היה לעבד את ה-JSON שסופק"
-        author={bookInfo.author || 'המיכלול'}
+        author={bookInfo.author || 'המכלול'}
       />
     );
   }

@@ -25,35 +25,35 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
   const [pdfUrl, setPdfUrl] = useState<string>('');
 
   useEffect(() => {
-    const url = bookResponse.downloadUrl;
-
-    console.log('PDF URLs זמינים:', {
-      viewUrl: bookResponse.viewUrl,
-      pdfUrl: bookResponse.viewUrl,
-      downloadUrl: bookResponse.downloadUrl,
-      selectedUrl: url
-    });
-
-    if (url) {
-      // בניית URL עם הגבלות - מוסיף פרמטרים למניעת הורדה
-      let finalUrl = url.endsWith('.pdf') ? `${url}#view=FitH` : url;
-      
-      // הוספת פרמטרים להגבלת פונקציונליות
-      const restrictions = [];
-      if (!allowDownload) restrictions.push('toolbar=0');
-      if (!allowPrint) restrictions.push('navpanes=0');
-      
-      if (restrictions.length > 0) {
-        finalUrl += (finalUrl.includes('#') ? '&' : '#') + restrictions.join('&');
+    // בניית ה-URLs הנכונים מהנתונים שמגיעים מהשרת
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+    const baseUrl = API_BASE_URL.replace('/api', ''); // הסרת /api
+    
+    // בניית URL לתצוגה - משתמש ב-viewUrl אם קיים, אחרת ב-download_url
+    let viewUrl = bookResponse.view_url || bookResponse.download_url;
+    console.log(viewUrl);
+    
+    if (viewUrl) {
+      // אם זה נתיב יחסי, נוסיף את הבסיס
+      if (viewUrl.startsWith('/')) {
+        viewUrl = `${baseUrl}${viewUrl}`;
       }
       
-      setPdfUrl(finalUrl.replace('download','view'));
+      // הוספת פרמטרים לתצוגה
+      let finalUrl = viewUrl;
+      
+      // אם זה PDF, נוסיף פרמטרים לתצוגה
+      if (viewUrl.includes('.pdf')) {
+        finalUrl = `${viewUrl}#view=FitH&toolbar=1&navpanes=1`;
+      }
+      
       console.log('URL סופי לתצוגה:', finalUrl);
+      setPdfUrl(finalUrl);
     } else {
       setError('לא נמצא URL לתצוגת הספר');
       setLoading(false);
     }
-  }, [bookResponse, allowDownload, allowPrint]);
+  }, [bookResponse]);
 
   // הגבלת לחיצה ימנית
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -85,12 +85,22 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
       return;
     }
 
-    const downloadUrl = bookResponse.downloadUrl;
-    if (downloadUrl) {
-      console.log('מוריד קובץ מ:', downloadUrl);
+    // בניית URL להורדה
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+    const baseUrl = API_BASE_URL.replace('/api', '');
+    
+    let download_url = bookResponse.download_url;
+    
+    if (download_url) {
+      // אם זה נתיב יחסי, נוסיף את הבסיס
+      if (download_url.startsWith('/')) {
+        download_url = `${baseUrl}${download_url}`;
+      }
+      
+      console.log('מוריד קובץ מ:', download_url);
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `${bookResponse.downloadUrl || 'book'}.pdf`;
+      link.href = download_url;
+      link.download = `${bookResponse.title || 'book'}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -124,7 +134,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
       <div className="pdf-viewer-error">
         <h3>אין תצוגה זמינה</h3>
         <p>לא נמצא קישור לתצוגת הספר</p>
-        {allowDownload && bookResponse.downloadUrl && (
+        {allowDownload && bookResponse.download_url && (
           <button onClick={handleDownload} className="download-button">
             הורד PDF במקום
           </button>
@@ -163,7 +173,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
               </button>
             )}
 
-            {allowDownload && bookResponse.downloadUrl && (
+            {allowDownload && bookResponse.download_url && (
               <button onClick={handleDownload} className="download-button">
                 הורד PDF
               </button>
@@ -198,7 +208,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
             <h3>שגיאה בתצוגה</h3>
             <p>{error}</p>
             <button onClick={() => window.location.reload()}>נסה שוב</button>
-            {allowDownload && bookResponse.downloadUrl && (
+            {allowDownload && bookResponse.download_url && (
               <button onClick={handleDownload} className="download-button">
                 הורד PDF במקום
               </button>

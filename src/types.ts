@@ -64,9 +64,9 @@ export interface PageType {
 export interface BookResponse {
     task_id: string,
     status: string,
-    message: string,
-    downloadUrl: string,
-    viewUrl:string
+    title: string,
+    download_url: string,
+    view_url:string
 }
 
 // טיפוס עבור בקשה ל-API
@@ -86,6 +86,6 @@ export interface BookInfo {
     pageCount: number;
     status: 'creating' | 'ready' | 'error';
     pdfUrl?: string;
-    downloadUrl?: string;
+    download_url?: string;
     viewUrl?: string;
 }
