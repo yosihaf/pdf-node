@@ -6,12 +6,15 @@ export const config = {
     baseUrl: process.env.REACT_APP_API_URL || 'https://pdf.test.hamichlol.org.il/api',
     mediaWikiUrl: process.env.REACT_APP_API_URL_HAMICHLOL || 'https://www.hamichlol.org.il/w/api.php',
     hamichlolRestUrl: process.env.REACT_APP_HAMICHLOL_REST_URL || 'https://www.hamichlol.org.il/w/rest.php/v1/page',
+    hamichlolSearchUrl: process.env.REACT_APP_HAMICHLOL_SEARCH_URL || 'https://www.hamichlol.org.il/w/rest.php/v1/search/title',
   },
   
   // הגדרות מדיה ויקי
   mediaWiki: {
-    // כתובת ה-API של המדיה ויקי שלך
+    // כתובת ה-API של המדיה ויקי שלך (למשתמשים כלליים)
     apiUrl: process.env.REACT_APP_API_URL_HAMICHLOL || 'https://www.hamichlol.org.il/w/api.php',
+    // כתובת API החיפוש החדש של המיכלול
+    searchApiUrl: process.env.REACT_APP_HAMICHLOL_SEARCH_URL || 'https://www.hamichlol.org.il/w/rest.php/v1/search/title',
     
     // הגדרות חיפוש
     searchLimit: 10,
@@ -54,6 +57,7 @@ export const validateConfig = (): boolean => {
     apiBaseUrl: config.api.baseUrl,
     mediaWikiUrl: config.api.mediaWikiUrl,
     hamichlolRestUrl: config.api.hamichlolRestUrl,
+    hamichlolSearchUrl: config.api.hamichlolSearchUrl,
     environment: process.env.NODE_ENV,
     
     // בדיקת משתני סביבה
@@ -61,8 +65,14 @@ export const validateConfig = (): boolean => {
       REACT_APP_API_URL: process.env.REACT_APP_API_URL,
       REACT_APP_MEDIAWIKI_API_URL: process.env.REACT_APP_MEDIAWIKI_API_URL,
       REACT_APP_HAMICHLOL_REST_URL: process.env.REACT_APP_HAMICHLOL_REST_URL,
+      REACT_APP_HAMICHLOL_SEARCH_URL: process.env.REACT_APP_HAMICHLOL_SEARCH_URL,
     }
   });
+  
+  if (!config.mediaWiki.searchApiUrl) {
+    console.error('❌ MediaWiki Search API URL is not configured!');
+    return false;
+  }
   
   if (!config.mediaWiki.apiUrl) {
     console.error('❌ MediaWiki API URL is not configured!');

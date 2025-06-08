@@ -1,32 +1,34 @@
-// src/components/MediaWikiSearch.tsx
+// src/components/MediaWikiSearch.tsx - עם תיקון לחיפוש קטגוריות
 import React, { useState, useEffect, useRef } from 'react';
 import { UrlDataType } from '../../types';
 import './MediaWikiSearch.css';
 
 interface MediaWikiSearchProps {
   onPageSelect: (page: UrlDataType) => void;
-  baseApiUrl: string; // URL לAPI של המדיה ויקי שלך
+  baseApiUrl: string;
   placeholder?: string;
   disabled?: boolean;
-  enableCategoryFilter?: boolean; // האם להציג סינון קטגוריות
-  defaultCategory?: string; // קטגוריה ברירת מחדל
-  excludeCategories?: string[]; // קטגוריות לא לכלול בחיפוש
-  restrictToCategories?: string[]; // רק קטגוריות אלה מותרות (אם מוגדר)
+  enableCategoryFilter?: boolean;
+  defaultCategory?: string;
+  excludeCategories?: string[];
+  restrictToCategories?: string[];
 }
 
 interface SearchResult {
-  pageid: number;
+  id: number;
+  key: string;
   title: string;
-  snippet?: string;
-  categoryinfo?: {
-    categories?: string[];
-  };
+  excerpt?: string;
+  matched_title?: string;
+  description?: string;
   thumbnail?: {
-    source: string;
+    mimetype: string;
+    size: number;
     width: number;
     height: number;
+    duration?: number;
+    url: string;
   };
-  pageimage?: string;
 }
 
 interface CategoryResult {
@@ -35,14 +37,15 @@ interface CategoryResult {
 }
 
 interface SearchResponse {
-  query?: {
-    search?: SearchResult[];
-    categorymembers?: Array<{
-      pageid: number;
-      title: string;
-    }>;
-  };
+  pages?: SearchResult[];
 }
+
+// פתרונות CORS פשוטים
+const CORS_PROXIES = [
+  '', // ישיר
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?',
+];
 
 const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
   onPageSelect,
@@ -72,193 +75,200 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
   const categoryRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
 
-  // פונקציה ליצירת URL לפתיחת דף בהמכלול
+
+  // פונקציה ליצירת URL לפתיחת דף בהמיכלול
   const getPageUrl = (pageTitle: string): string => {
-    const baseUrl = baseApiUrl.replace('/w/api.php', '');
-    return `${baseUrl}/${encodeURIComponent(pageTitle)}`;
-  };
-  const getPageCategories = async (pageTitle: string): Promise<string[]> => {
-    try {
-      const categoryUrl = new URL(baseApiUrl);
-      categoryUrl.searchParams.set('action', 'query');
-      categoryUrl.searchParams.set('format', 'json');
-      categoryUrl.searchParams.set('titles', pageTitle);
-      categoryUrl.searchParams.set('prop', 'categories');
-      categoryUrl.searchParams.set('cllimit', '50');
-      categoryUrl.searchParams.set('origin', '*');
-
-      const response = await fetch(categoryUrl.toString());
-      if (!response.ok) return [];
-
-      const data = await response.json();
-      const pages = data.query?.pages;
-
-      if (!pages) return [];
-
-      const pageData = Object.values(pages)[0] as any;
-      if (!pageData?.categories) return [];
-
-      return pageData.categories.map((cat: any) =>
-        cat.title.replace('קטגוריה:', '').trim()
-      );
-    } catch (error) {
-      console.error('שגיאה בקבלת קטגוריות עבור דף:', pageTitle, error);
-      return [];
-    }
+    return `https://www.hamichlol.org.il/${encodeURIComponent(pageTitle)}`;
   };
 
-  // פונקציה לסינון תוצאות לפי קטגוריות
-  const filterResultsByCategories = async (results: SearchResult[]): Promise<SearchResult[]> => {
-    if (excludeCategories.length === 0 && restrictToCategories.length === 0) {
-      return results; // אין סינון נדרש
-    }
+  // פונקציה לבקשה עם ניסיונות CORS שונים
+  const fetchWithCorsHandling = async (url: string): Promise<any> => {
+    let lastError: Error | null = null;
 
-    const filteredResults: SearchResult[] = [];
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const finalUrl = proxy ? `${proxy}${encodeURIComponent(url)}` : url;
+        console.log(`🔄 מנסה עם ${proxy ? 'proxy' : 'direct'}:`, finalUrl);
 
-    for (const result of results) {
-      const pageCategories = await getPageCategories(result.title);
+        const response = await fetch(finalUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          mode: 'cors',
+        });
 
-      // בדיקת קטגוריות אסורות
-      const hasExcludedCategory = excludeCategories.some(excludeCat =>
-        pageCategories.some(pageCat =>
-          pageCat.toLowerCase().includes(excludeCat.toLowerCase()) ||
-          excludeCat.toLowerCase().includes(pageCat.toLowerCase())
-        )
-      );
-
-      if (hasExcludedCategory) {
-        console.log(`דף "${result.title}" נחסם בגלל קטגוריה אסורה:`, pageCategories);
-        continue; // דלג על דף זה
-      }
-
-      // בדיקת הגבלה לקטגוריות מסוימות
-      if (restrictToCategories.length > 0) {
-        const hasAllowedCategory = restrictToCategories.some(allowedCat =>
-          pageCategories.some(pageCat =>
-            pageCat.toLowerCase().includes(allowedCat.toLowerCase()) ||
-            allowedCat.toLowerCase().includes(pageCat.toLowerCase())
-          )
-        );
-
-        if (!hasAllowedCategory) {
-          console.log(`דף "${result.title}" נחסם כי אין לו קטגוריה מותרת:`, pageCategories);
-          continue; // דלג על דף זה
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-      }
 
-      filteredResults.push(result);
+        const data = await response.json();
+        console.log(`✅ הצלחה עם ${proxy ? 'proxy' : 'direct'}`);
+        return data;
+
+      } catch (error) {
+        console.warn(`❌ נכשל עם ${proxy ? 'proxy' : 'direct'}:`, error);
+        lastError = error as Error;
+        continue;
+      }
     }
 
-    return filteredResults;
+    throw lastError || new Error('כל ניסיונות ה-CORS נכשלו');
   };
+
+  // חיפוש קטגוריות - תיקון מיוחד
   const searchCategories = async (query: string): Promise<CategoryResult[]> => {
-    if (!query.trim()) return [];
+    if (!query.trim() || query.length < 2) return [];
 
     try {
-      const searchUrl = new URL(baseApiUrl);
-      searchUrl.searchParams.set('action', 'query');
-      searchUrl.searchParams.set('format', 'json');
-      searchUrl.searchParams.set('list', 'allcategories');
-      searchUrl.searchParams.set('acprefix', query);
-      searchUrl.searchParams.set('aclimit', '10');
-      searchUrl.searchParams.set('acprop', 'size');
-      searchUrl.searchParams.set('origin', '*');
+      console.log(`🏷️ מחפש קטגוריות: "${query}"`);
+      
+      // URL מתוקן לחיפוש קטגוריות במיכלול
+      const categoryApiUrl = 'https://www.hamichlol.org.il/w/api.php';
+      const params = new URLSearchParams({
+        action: 'query',
+        format: 'json',
+        list: 'allcategories',
+        acprefix: query.trim(),
+        aclimit: '10',
+        acprop: 'size',
+        origin: '*'
+      });
 
-      const response = await fetch(searchUrl.toString());
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      const fullUrl = `${categoryApiUrl}?${params.toString()}`;
+      console.log('🔍 URL חיפוש קטגוריות:', fullUrl);
 
-      const data = await response.json();
+      const data = await fetchWithCorsHandling(fullUrl);
+      console.log('📋 תשובת חיפוש קטגוריות:', data);
 
       if (data.query?.allcategories) {
-        return data.query.allcategories.map((cat: any) => ({
-          category: cat.category?.replace('קטגוריה:', '') || cat['*'],
-          pages: cat.pages || 0
+        const categories = data.query.allcategories.map((cat: any) => ({
+          category: cat['*'] || cat.category || cat.title || '',
+          pages: cat.pages || cat.size || 0
         }));
+        
+        console.log(`✅ נמצאו ${categories.length} קטגוריות:`, categories);
+        return categories;
       }
 
+      console.log('⚠️ לא נמצאו קטגוריות בתשובה');
       return [];
+
     } catch (error) {
-      console.error('שגיאה בחיפוש קטגוריות:', error);
+      console.error('❌ שגיאה בחיפוש קטגוריות:', error);
       return [];
     }
   };
 
-  // פונקציה לחיפוש דפים במדיה ויקי עם סינון קטגוריה
+  // פונקציה לקבלת דפים מקטגוריה - מתוקנת
+  const getCategoryPages = async (
+    categoryName: string,
+    searchTerm?: string,
+    limit: number = 20
+  ): Promise<SearchResult[]> => {
+    try {
+      console.log(`📂 מחפש דפים בקטגוריה "${categoryName}"${searchTerm ? ` עם מונח "${searchTerm}"` : ''}`);
+      
+      const categoryApiUrl = 'https://www.hamichlol.org.il/w/api.php';
+      const params = new URLSearchParams({
+        action: 'query',
+        format: 'json',
+        list: 'categorymembers',
+        cmtitle: `קטגוריה:${categoryName}`,
+        cmlimit: limit.toString(),
+        cmprop: 'ids|title|timestamp',
+        cmtype: 'page',
+        cmsort: 'timestamp',
+        cmdir: 'desc',
+        origin: '*'
+      });
+
+      // אם יש חיפוש ספציפי
+      if (searchTerm && searchTerm.trim()) {
+        params.set('cmprefix', searchTerm.trim());
+      }
+
+      const fullUrl = `${categoryApiUrl}?${params.toString()}`;
+      console.log('🔍 URL חיפוש בקטגוריה:', fullUrl);
+
+      const data = await fetchWithCorsHandling(fullUrl);
+      console.log('📋 תשובת חיפוש בקטגוריה:', data);
+
+      if (data.query?.categorymembers) {
+        let pages = data.query.categorymembers;
+
+        // סינון נוסף אם יש מונח חיפוש
+        if (searchTerm && searchTerm.trim()) {
+          pages = pages.filter((page: any) => 
+            page.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
+          );
+        }
+
+        const results = pages.map((page: any) => ({
+          id: page.pageid || Math.random(),
+          key: page.title,
+          title: page.title,
+          excerpt: `דף בקטגוריה: ${categoryName}`
+        }));
+
+        console.log(`✅ נמצאו ${results.length} דפים בקטגוריה`);
+        return results;
+      }
+
+      console.log('⚠️ לא נמצאו דפים בקטגוריה');
+      return [];
+
+    } catch (error) {
+      console.error('❌ שגיאה בקבלת דפי קטגוריה:', error);
+      return [];
+    }
+  };
+
+  // פונקציה לחיפוש דפים רגיל
+  const searchPagesRegular = async (query: string): Promise<SearchResult[]> => {
+    try {
+      console.log(`🔍 חיפוש רגיל עבור "${query}"`);
+      
+      const searchUrl = baseApiUrl;
+      const params = new URLSearchParams({
+        q: query.trim(),
+        limit: '10'
+      });
+
+      const fullUrl = `${searchUrl}?${params.toString()}`;
+      console.log('🔍 URL חיפוש רגיל:', fullUrl);
+
+      const data: SearchResponse = await fetchWithCorsHandling(fullUrl);
+      console.log('📋 תשובת חיפוש רגיל:', data);
+
+      return data.pages || [];
+
+    } catch (error) {
+      console.error('❌ שגיאה בחיפוש רגיל:', error);
+      throw error;
+    }
+  };
+
+  // פונקציה ראשית לחיפוש
   const searchPages = async (query: string, category?: string): Promise<SearchResult[]> => {
     if (!query.trim()) return [];
 
     try {
-      let searchUrl = new URL(baseApiUrl);
       let results: SearchResult[] = [];
 
       if (category && category.trim()) {
         // חיפוש בקטגוריה ספציפית
-        searchUrl.searchParams.set('action', 'query');
-        searchUrl.searchParams.set('format', 'json');
-        searchUrl.searchParams.set('list', 'categorymembers');
-        searchUrl.searchParams.set('cmtitle', `קטגוריה:${category}`);
-        searchUrl.searchParams.set('cmlimit', '20');
-        searchUrl.searchParams.set('cmsort', 'timestamp');
-        searchUrl.searchParams.set('cmdir', 'desc');
-        searchUrl.searchParams.set('origin', '*');
-
-        // הוספת חיפוש טקסט בתוך הקטגוריה
-        if (query.trim()) {
-          searchUrl.searchParams.set('cmprefix', query);
-        }
+        results = await getCategoryPages(category, query);
       } else {
         // חיפוש רגיל
-        searchUrl.searchParams.set('action', 'query');
-        searchUrl.searchParams.set('format', 'json');
-        searchUrl.searchParams.set('list', 'search');
-        searchUrl.searchParams.set('srsearch', query);
-        searchUrl.searchParams.set('srlimit', '15'); // מגדילים כי נסנן אחר כך
-        searchUrl.searchParams.set('srprop', 'snippet');
-        searchUrl.searchParams.set('origin', '*');
-      }
-
-      console.log('חיפוש במדיה ויקי:', searchUrl.toString());
-
-      const response = await fetch(searchUrl.toString());
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: SearchResponse = await response.json();
-
-      if (category && data.query?.categorymembers) {
-        // המרת תוצאות קטגוריה לפורמט אחיד
-        results = data.query.categorymembers
-          .filter(page => page.title.toLowerCase().includes(query.toLowerCase()))
-          .map(page => ({
-            pageid: page.pageid,
-            title: page.title,
-            snippet: `דף בקטגוריה: ${category}`
-          }));
-      } else {
-        results = data.query?.search || [];
-      }
-
-      // סינון לפי קטגוריות אסורות/מותרות
-      if (excludeCategories.length > 0 || restrictToCategories.length > 0) {
-        console.log('מסנן תוצאות לפי קטגוריות...', {
-          exclude: excludeCategories,
-          restrict: restrictToCategories,
-          originalCount: results.length
-        });
-
-        results = await filterResultsByCategories(results);
-
-        console.log(`נותרו ${results.length} תוצאות אחרי סינון`);
+        results = await searchPagesRegular(query);
       }
 
       return results;
     } catch (error) {
-      console.error('שגיאה בחיפוש במדיה ויקי:', error);
-      setError('שגיאה בחיפוש. אנא נסה שוב.');
-      return [];
+      console.error('❌ שגיאה בחיפוש:', error);
+      throw error;
     }
   };
 
@@ -269,12 +279,10 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     setSelectedIndex(-1);
     setError(null);
 
-    // ביטול חיפוש קודם
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
 
-    // חיפוש עם debounce
     debounceRef.current = setTimeout(() => {
       if (value.trim().length >= 2) {
         performSearch(value.trim());
@@ -289,12 +297,19 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
   const performSearch = async (query: string) => {
     setIsLoading(true);
     setShowResults(true);
+    setError(null);
 
     try {
       const results = await searchPages(query, selectedCategory);
       setSearchResults(results);
+      
+      if (results.length === 0) {
+        setError(`לא נמצאו תוצאות עבור "${query}"${selectedCategory ? ` בקטגוריה "${selectedCategory}"` : ''}`);
+      }
     } catch (error) {
+      console.error('❌ שגיאה בחיפוש:', error);
       setSearchResults([]);
+      setError(`שגיאה בחיפוש: ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
     }
@@ -302,16 +317,16 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
 
   // טיפול בשינוי קטגוריה
   const handleCategoryChange = (category: string) => {
+    console.log(`🏷️ שינוי קטגוריה ל: "${category}"`);
     setSelectedCategory(category);
     setShowCategoryDropdown(false);
 
-    // אם יש טקסט חיפוש, חפש מחדש עם הקטגוריה החדשה
     if (searchTerm.trim()) {
       performSearch(searchTerm.trim());
     }
   };
 
-  // חיפוש קטגוריות כשהמשתמש מתחיל לטפס
+  // חיפוש קטגוריות עם debounce
   const searchCategoriesDebounced = async (query: string) => {
     if (!query.trim() || query.length < 2) {
       setAvailableCategories([]);
@@ -323,6 +338,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
       const categories = await searchCategories(query);
       setAvailableCategories(categories);
     } catch (error) {
+      console.error('❌ שגיאה בחיפוש קטגוריות:', error);
       setAvailableCategories([]);
     } finally {
       setLoadingCategories(false);
@@ -332,7 +348,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
   // טיפול בבחירת דף
   const handlePageSelect = (result: SearchResult) => {
     const selectedPage: UrlDataType = {
-      url: result.title, // נשלח את שם הדף כ-URL
+      url: result.title,
       title: result.title
     };
 
@@ -342,7 +358,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     setSelectedIndex(-1);
   };
 
-  // טיפול במקלדת (חצים ו-Enter)
+  // טיפול במקלדת
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showResults || searchResults.length === 0) return;
 
@@ -370,7 +386,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     }
   };
 
-  // סגירת התוצאות בלחיצה מחוץ לקומפוננטה
+  // סגירת תוצאות בלחיצה מחוץ
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -393,7 +409,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ניקוי debounce בביטול הקומפוננטה
+  // ניקוי debounce
   useEffect(() => {
     return () => {
       if (debounceRef.current) {
@@ -457,6 +473,12 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
                       )}
                     </button>
                   ))}
+
+                  {!loadingCategories && availableCategories.length === 0 && (
+                    <div className="category-loading">
+                      <span>לא נמצאו קטגוריות</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -506,8 +528,6 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
         </div>
       )}
 
- 
-
       {showResults && (
         <div ref={resultsRef} className="search-results">
           {error && (
@@ -521,16 +541,6 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
               <div className="no-results-content">
                 <h4>לא נמצאו תוצאות עבור "{searchTerm}"</h4>
                 {selectedCategory && <p>בקטגוריה "{selectedCategory}"</p>}
-
-                <div className="search-suggestions">
-                  <h5>הצעות לשיפור החיפוש:</h5>
-                  <ul>
-                    <li>בדוק איות וכתיב המילים</li>
-                    <li>נסה מילים כלליות יותר</li>
-                    <li>הסר את סינון הקטגוריה</li>
-                    <li>חפש באנגלית אם השם המקורי באנגלית</li>
-                  </ul>
-                </div>
 
                 <div className="search-examples">
                   <h5>דוגמאות לחיפוש:</h5>
@@ -557,36 +567,50 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
 
           {!error && searchResults.map((result, index) => (
             <div
-              key={result.pageid}
-              className={`search-result-item ${index === selectedIndex ? 'selected' : ''
-                }`}
+              key={result.id || index}
+              className={`search-result-item ${index === selectedIndex ? 'selected' : ''}`}
               onMouseEnter={() => setSelectedIndex(index)}
             >
               <div className="result-content">
                 <div className="result-image-container">
-                  {result.thumbnail ? (
+                  {result.thumbnail?.url ? (
                     <img
-                      src={result.thumbnail.source}
+                      src={result.thumbnail.url}
                       alt={result.title}
                       className="result-image"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const placeholder = target.nextElementSibling as HTMLElement;
+                        if (placeholder) {
+                          placeholder.style.display = 'flex';
+                        }
+                      }}
                     />
-                  ) : (
-                    <div className="result-image-placeholder">
-                      <span className="placeholder-icon">📄</span>
-                    </div>
-                  )}
+                  ) : null}
+                  <div 
+                    className="result-image-placeholder"
+                    style={{ display: result.thumbnail?.url ? 'none' : 'flex' }}
+                  >
+                    <span className="placeholder-icon">📄</span>
+                  </div>
                 </div>
 
                 <div className="result-text">
                   <div className="result-title">{result.title}</div>
-                  {result.snippet && (
+                  {result.excerpt && (
                     <div
                       className="result-snippet"
                       dangerouslySetInnerHTML={{
-                        __html: result.snippet.replace(/<[^>]*>/g, '')
+                        __html: result.excerpt.replace(/<[^>]*>/g, '')
                       }}
                     />
+                  )}
+                  {result.description && (
+                    <div className="result-snippet">
+                      {result.description}
+                    </div>
                   )}
                 </div>
               </div>

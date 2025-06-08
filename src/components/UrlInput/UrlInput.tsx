@@ -125,7 +125,7 @@ const UrlInput: React.FC<UrlInputProps> = ({ onSubmit, isLoading }) => {
           
           <MediaWikiSearch
             onPageSelect={handlePageSelect}
-            baseApiUrl={config.mediaWiki.apiUrl}
+            baseApiUrl={config.mediaWiki.searchApiUrl}
             placeholder="הקלד לחיפוש דפים..."
             disabled={isLoading}
             enableCategoryFilter={true}
@@ -165,7 +165,7 @@ const UrlInput: React.FC<UrlInputProps> = ({ onSubmit, isLoading }) => {
           </p>
           
           <CategoryPageSelector
-            baseApiUrl={config.mediaWiki.apiUrl}
+            baseApiUrl={config.mediaWiki.searchApiUrl}
             onPagesSelected={handleCategoryPagesSelect}
             disabled={isLoading}
           />
