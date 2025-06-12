@@ -1,0 +1,540 @@
+/* src/pages/SettingsPage/SettingsPage.css */
+
+.settings-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  direction: rtl;
+}
+
+.settings-container {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.settings-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.settings-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.settings-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.settings-content {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 600px;
+}
+
+/* Sidebar */
+.settings-sidebar {
+  background: #f8f9fa;
+  border-left: 1px solid #e9ecef;
+  padding: 0;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: none;
+  text-align: right;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #495057;
+  border-right: 3px solid transparent;
+}
+
+.nav-tab:hover {
+  background: #e9ecef;
+  color: #2c3e50;
+}
+
+.nav-tab.active {
+  background: white;
+  color: #667eea;
+  border-right-color: #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tab-icon {
+  font-size: 1.2rem;
+}
+
+/* Main Content */
+.settings-main {
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.settings-section {
+  max-width: 600px;
+}
+
+.settings-section h2 {
+  margin: 0 0 2rem 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.75rem;
+}
+
+.setting-group {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 0.75rem;
+  border: 1px solid #e9ecef;
+}
+
+.setting-group h3 {
+  margin: 0 0 1.5rem 0;
+  color: #495057;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+/* הודעות */
+.message {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+}
+
+.message-icon {
+  font-size: 1.2rem;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* טפסים */
+.password-form,
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.875rem;
+  border: 2px solid #e9ecef;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+  background: #e9ecef;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container input {
+  flex: 1;
+  padding-left: 3rem;
+}
+
+.toggle-password {
+  position: absolute;
+  left: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+  color: #667eea;
+}
+
+/* Toggle Settings */
+.toggle-setting {
+  margin-bottom: 1.5rem;
+}
+
+.toggle-setting label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+}
+
+.toggle-setting input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.toggle-label {
+  flex: 1;
+  font-size: 1rem;
+}
+
+.setting-description {
+  margin: 0.5rem 0 0 2rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+/* כפתורים */
+.submit-button,
+.save-settings-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+}
+
+.submit-button:hover:not(:disabled),
+.save-settings-button:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.submit-button:disabled,
+.save-settings-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.utility-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.utility-button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.utility-button:last-child {
+  margin-bottom: 0;
+}
+
+/* אזור מסוכן */
+.danger-zone {
+  background: #fff5f5 !important;
+  border-color: #fed7d7 !important;
+}
+
+.danger-zone h3 {
+  color: #c53030;
+}
+
+.danger-zone p {
+  color: #742a2a;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.danger-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.danger-button:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 0 15px;
+  }
+
+  .settings-content {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-sidebar {
+    border-left: none;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .settings-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .nav-tab {
+    white-space: nowrap;
+    padding: 0.75rem 1rem;
+    border-right: none;
+    border-bottom: 3px solid transparent;
+    flex-shrink: 0;
+  }
+
+  .nav-tab.active {
+    border-right: none;
+    border-bottom-color: #667eea;
+  }
+
+  .settings-main {
+    padding: 1.5rem;
+  }
+
+  .settings-section {
+    max-width: none;
+  }
+
+  .setting-group {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-header {
+    padding: 1.5rem;
+  }
+
+  .settings-header h1 {
+    font-size: 2rem;
+  }
+
+  .settings-header p {
+    font-size: 1rem;
+  }
+
+  .settings-main {
+    padding: 1rem;
+  }
+
+  .settings-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .setting-group h3 {
+    font-size: 1.1rem;
+  }
+
+  .nav-tab {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .tab-icon {
+    font-size: 1rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .submit-button,
+  .save-settings-button,
+  .utility-button,
+  .danger-button {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .toggle-setting label {
+    font-size: 0.9rem;
+  }
+
+  .setting-description {
+    font-size: 0.8rem;
+    margin-left: 1.5rem;
+  }
+}
+
+/* מצב כהה (אם רוצים להוסיף בעתיד) */
+@media (prefers-color-scheme: dark) {
+  /* כאן נוכל להוסיף סגנונות למצב כהה */
+}
+
+/* אנימציות נוספות */
+.settings-section {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* הדגשות מיוחדות */
+.toggle-setting:hover {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin: -0.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input[type="number"] {
+  max-width: 150px;
+}
+
+.form-group select {
+  max-width: 200px;
+  cursor: pointer;
+}
+
+/* מצב focus משופר */
+.nav-tab:focus,
+.toggle-setting input:focus,
+.form-group input:focus,
+.form-group select:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* אפקטים נוספים לכפתורים */
+.submit-button:active,
+.save-settings-button:active,
+.utility-button:active,
+.danger-button:active {
+  transform: scale(0.98);
+}
+
+/* סגנונות למצב טעינה */
+.settings-main.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.settings-main.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}

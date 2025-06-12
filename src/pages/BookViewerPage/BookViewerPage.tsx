@@ -151,7 +151,6 @@ const BookViewerPage: React.FC = () => {
         <PdfViewer
           bookResponse={book}
           allowDownload={true}
-          allowPrint={true}
           allowFullscreen={true}
           showControls={true}
         />

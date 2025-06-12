@@ -1,14 +1,15 @@
+// src/components/PdfViewer/PdfViewer.tsx - עם פתרונות CORS
 import React, { useState, useEffect } from 'react';
 import { BookResponse } from '../../types';
 import './PdfViewer.css';
 
 interface PdfViewerProps {
   bookResponse: BookResponse;
-  allowDownload?: boolean; // הגבלת הורדה
-  allowPrint?: boolean; // הגבלת הדפסה
-  allowFullscreen?: boolean; // הגבלת מסך מלא
-  showControls?: boolean; // הצגת פקדים
-  watermark?: string; // סימן מים
+  allowDownload?: boolean;
+  allowPrint?: boolean;
+  allowFullscreen?: boolean;
+  showControls?: boolean;
+  watermark?: string;
 }
 
 const PdfViewer: React.FC<PdfViewerProps> = ({ 
@@ -23,27 +24,24 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string>('');
+  const [useEmbedFallback, setUseEmbedFallback] = useState<boolean>(false);
 
   useEffect(() => {
-    // בניית ה-URLs הנכונים מהנתונים שמגיעים מהשרת
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
-    const baseUrl = API_BASE_URL.replace('/api', ''); // הסרת /api
+    const baseUrl = API_BASE_URL.replace('/api', '');
     
-    // בניית URL לתצוגה - משתמש ב-viewUrl אם קיים, אחרת ב-download_url
     let viewUrl = bookResponse.view_url || bookResponse.download_url;
     
     if (viewUrl) {
-      // אם זה נתיב יחסי, נוסיף את הבסיס
       if (viewUrl.startsWith('/')) {
         viewUrl = `${baseUrl}${viewUrl}`;
       }
       
-      // הוספת פרמטרים לתצוגה
+      // הוספת headers ופרמטרים לתצוגה טובה יותר
       let finalUrl = viewUrl;
       
-      // אם זה PDF, נוסיף פרמטרים לתצוגה
       if (viewUrl.includes('.pdf')) {
-        finalUrl = `${viewUrl}#view=FitH&toolbar=1&navpanes=1`;
+        finalUrl = `${viewUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`;
       }
       
       setPdfUrl(finalUrl);
@@ -53,28 +51,18 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
     }
   }, [bookResponse]);
 
-  // הגבלת לחיצה ימנית
-  const handleContextMenu = (e: React.MouseEvent) => {
-    if (!allowDownload) {
-      e.preventDefault();
-      return false;
-    }
+  // פונקציה לטיפול בשגיאות iframe
+  const handleIframeError = (): void => {
+    console.error('שגיאה בטעינת iframe');
+    setLoading(false);
+    setError('שגיאה בטעינת תצוגת ה-PDF');
+    // ניסיון עם embed כ-fallback
+    setUseEmbedFallback(true);
   };
 
-  // הגבלת מקשי קיצור
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!allowDownload) {
-      // חסימת Ctrl+S, Ctrl+P, F12, וכו'
-      if (
-        (e.ctrlKey && (e.key === 's' || e.key === 'S')) || // Save
-        (e.ctrlKey && (e.key === 'p' || e.key === 'P')) || // Print
-        e.key === 'F12' || // Developer Tools
-        (e.ctrlKey && e.shiftKey && e.key === 'I') // Dev Tools
-      ) {
-        e.preventDefault();
-        return false;
-      }
-    }
+  const handleIframeLoad = (): void => {
+    setLoading(false);
+    setError(null);
   };
 
   const handleDownload = (): void => {
@@ -83,26 +71,26 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
       return;
     }
 
-    // בניית URL להורדה
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
     const baseUrl = API_BASE_URL.replace('/api', '');
     
     let download_url = bookResponse.download_url;
     
     if (download_url) {
-      // אם זה נתיב יחסי, נוסיף את הבסיס
       if (download_url.startsWith('/')) {
         download_url = `${baseUrl}${download_url}`;
       }
       
-      const link = document.createElement('a');
-      link.href = download_url;
-      link.download = `${bookResponse.title || 'book'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // פתיחה בטאב חדש במקום הורדה אוטומטית
+      window.open(download_url, '_blank');
     } else {
       alert('לא ניתן להוריד את הקובץ - URL לא זמין');
+    }
+  };
+
+  const handleOpenNewTab = (): void => {
+    if (pdfUrl) {
+      window.open(pdfUrl, '_blank');
     }
   };
 
@@ -114,32 +102,23 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
     setIsFullscreen(!isFullscreen);
   };
 
-  const handleIframeLoad = (): void => {
-    setLoading(false);
-    setError(null);
-  };
-
-  const handleIframeError = (): void => {
-    console.error('שגיאה בטעינת iframe');
-    setLoading(false);
-    setError('שגיאה בטעינת תצוגת ה-PDF');
-  };
-
   if (!pdfUrl && !loading) {
     return (
       <div className="pdf-viewer-error">
         <h3>אין תצוגה זמינה</h3>
         <p>לא נמצא קישור לתצוגת הספר</p>
-        {allowDownload && bookResponse.download_url && (
-          <button onClick={handleDownload} className="download-button">
-            הורד PDF במקום
-          </button>
-        )}
-        <div className="debug-info">
-          <details>
-            <summary>מידע טכני</summary>
-            <pre>{JSON.stringify(bookResponse, null, 2)}</pre>
-          </details>
+        <div className="error-actions">
+          {allowDownload && bookResponse.download_url && (
+            <button onClick={handleDownload} className="download-button">
+              הורד PDF במקום
+            </button>
+          )}
+          <div className="debug-info">
+            <details>
+              <summary>מידע טכני</summary>
+              <pre>{JSON.stringify(bookResponse, null, 2)}</pre>
+            </details>
+          </div>
         </div>
       </div>
     );
@@ -148,11 +127,8 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
   return (
     <div 
       className={`pdf-viewer ${isFullscreen ? 'fullscreen' : ''} ${!allowDownload ? 'restricted' : ''}`}
-      onContextMenu={handleContextMenu}
-      onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      {/* סימן מים */}
       {watermark && (
         <div className="watermark">
           {watermark}
@@ -161,7 +137,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
 
       {showControls && (
         <div className="pdf-controls">
-          <h3>תצוגת הספר</h3>
+          <h3>תצוגת הספר: {bookResponse.title}</h3>
           <div className="control-buttons">
             {allowFullscreen && (
               <button onClick={handleFullscreen} className="fullscreen-button">
@@ -169,22 +145,14 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
               </button>
             )}
 
+            <button onClick={handleOpenNewTab} className="open-tab-button">
+              פתח בטאב חדש
+            </button>
+
             {allowDownload && bookResponse.download_url && (
               <button onClick={handleDownload} className="download-button">
                 הורד PDF
               </button>
-            )}
-
-            {pdfUrl && (
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="open-new-tab-button"
-                style={{ display: allowDownload ? 'inline-block' : 'none' }}
-              >
-                פתח בטאב חדש
-              </a>
             )}
           </div>
         </div>
@@ -195,7 +163,8 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
           <div className="pdf-loading">
             <div className="spinner"></div>
             <p>טוען את תצוגת הספר...</p>
-            <p className="loading-url">מנסה לטעון: {pdfUrl}</p>
+            <p className="loading-url">URL: {pdfUrl}</p>
+            <p className="loading-note">אם הטעינה נתקעת, נסה את כפתור "פתח בטאב חדש"</p>
           </div>
         )}
 
@@ -203,40 +172,64 @@ const PdfViewer: React.FC<PdfViewerProps> = ({
           <div className="pdf-error">
             <h3>שגיאה בתצוגה</h3>
             <p>{error}</p>
-            <button onClick={() => window.location.reload()}>נסה שוב</button>
-            {allowDownload && bookResponse.download_url && (
-              <button onClick={handleDownload} className="download-button">
-                הורד PDF במקום
+            <div className="error-actions">
+              <button onClick={() => window.location.reload()} className="retry-button">
+                נסה שוב
               </button>
-            )}
+              <button onClick={handleOpenNewTab} className="open-tab-button">
+                פתח בטאב חדש
+              </button>
+              {allowDownload && bookResponse.download_url && (
+                <button onClick={handleDownload} className="download-button">
+                  הורד PDF במקום
+                </button>
+              )}
+            </div>
             <div className="debug-info">
               <details>
                 <summary>פרטים טכניים</summary>
                 <p>URL שנוסה לטעון: {pdfUrl}</p>
+                <p>Status: {error}</p>
                 <pre>{JSON.stringify(bookResponse, null, 2)}</pre>
               </details>
             </div>
           </div>
         )}
 
-        {pdfUrl && (
-          <iframe
-            src={pdfUrl}
-            title="תצוגת הספר"
-            className="pdf-iframe"
-            onLoad={handleIframeLoad}
-            onError={handleIframeError}
-            style={{ display: loading || error ? 'none' : 'block' }}
-            // הגבלות iframe
-            sandbox={allowDownload ? 
-              "allow-same-origin allow-scripts allow-popups allow-downloads" : 
-              "allow-same-origin allow-scripts"
-            }
-          />
+        {pdfUrl && !error && (
+          <>
+            {/* ניסיון ראשון - iframe רגיל */}
+            {!useEmbedFallback ? (
+              <iframe
+                src={pdfUrl}
+                title="תצוגת הספר"
+                className="pdf-iframe"
+                onLoad={handleIframeLoad}
+                onError={handleIframeError}
+                style={{ display: loading ? 'none' : 'block' }}
+                sandbox="allow-same-origin allow-scripts allow-popups allow-downloads"
+                allow="fullscreen"
+              />
+            ) : (
+              /* fallback - embed tag */
+              <embed
+                src={pdfUrl}
+                type="application/pdf"
+                width="100%"
+                height="100%"
+                style={{ display: loading ? 'none' : 'block' }}
+                title="תצוגת הספר"
+                onLoad={handleIframeLoad}
+                onError={() => {
+                  setError('לא ניתן להציג את הקובץ בדפדפן זה');
+                  setLoading(false);
+                }}
+              />
+            )}
+          </>
         )}
       </div>
 
-      {/* הודעת הגבלה */}
       {!allowDownload && (
         <div className="restriction-notice">
           <p>🔒 תצוגה מוגבלת - הורדה והדפסה חסומות</p>

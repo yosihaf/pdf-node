@@ -1,3 +1,5 @@
+/* src/components/Layout/Header/Header.css - עם תמיכה באימות */
+
 .app-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -70,6 +72,220 @@
   font-size: 1.2em;
 }
 
+/* פינת המשתמש */
+.user-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-button {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+/* תפריט המשתמש */
+.user-menu {
+  position: relative;
+}
+
+.user-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.user-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-avatar.large {
+  width: 50px;
+  height: 50px;
+  font-size: 1.1rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.user-email {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  line-height: 1.2;
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+}
+
+.user-button:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* תפריט נפתח */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  min-width: 280px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownSlideIn 0.2s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-dropdown-header {
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #2c3e50;
+}
+
+.user-dropdown-header .user-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.user-dropdown-header .user-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.user-dropdown-header .user-email {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #007bff;
+  font-weight: 500;
+  background: rgba(0, 123, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-top: 4px;
+}
+
+.user-dropdown-divider {
+  height: 1px;
+  background: #e9ecef;
+}
+
+.user-dropdown-actions {
+  padding: 10px 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: #2c3e50;
+  text-decoration: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: right;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+  background: #f8f9fa;
+  text-decoration: none;
+  color: #2c3e50;
+}
+
+.logout-item {
+  color: #dc3545;
+  border-top: 1px solid #e9ecef;
+}
+
+.logout-item:hover {
+  background: #fff5f5;
+  color: #dc3545;
+}
+
+/* רקע לסגירת התפריט */
+.user-menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -94,5 +310,52 @@
     flex: 1;
     justify-content: center;
     min-width: 120px;
+  }
+
+  .user-section {
+    width: 100%;
+    justify-content: center;
+    margin-top: 15px;
+  }
+
+  .user-button {
+    width: auto;
+    min-width: 200px;
+    justify-content: center;
+  }
+
+  .user-dropdown {
+    right: 50%;
+    transform: translateX(50%);
+    min-width: 250px;
+  }
+
+  .user-info {
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-navigation {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .nav-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-button {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .user-dropdown {
+    right: 10px;
+    left: 10px;
+    transform: none;
+    min-width: auto;
   }
 }
