@@ -1,4 +1,4 @@
-// src/components/MediaWikiSearch.tsx - עם תיקון לחיפוש קטגוריות
+// src/components/MediaWikiSearch/MediaWikiSearch.tsx - תיקון הפונקציה searchPagesRegular
 import React, { useState, useEffect, useRef } from 'react';
 import { UrlDataType } from '../../types';
 import './MediaWikiSearch.css';
@@ -36,9 +36,6 @@ interface CategoryResult {
   pages: number;
 }
 
-interface SearchResponse {
-  pages?: SearchResult[];
-}
 
 // פתרונות CORS פשוטים
 const CORS_PROXIES = [
@@ -74,7 +71,6 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
   const resultsRef = useRef<HTMLDivElement>(null);
   const categoryRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
-
 
   // פונקציה ליצירת URL לפתיחת דף בהמיכלול
   const getPageUrl = (pageTitle: string): string => {
@@ -117,20 +113,21 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     throw lastError || new Error('כל ניסיונות ה-CORS נכשלו');
   };
 
-  // חיפוש קטגוריות - תיקון מיוחד
+  // חיפוש קטגוריות - תיקון עם Action API הנכון
   const searchCategories = async (query: string): Promise<CategoryResult[]> => {
     if (!query.trim() || query.length < 2) return [];
 
     try {
       console.log(`🏷️ מחפש קטגוריות: "${query}"`);
       
-      // URL מתוקן לחיפוש קטגוריות במיכלול
+      // ✅ שימוש ב-Action API הנכון לחיפוש קטגוריות
       const categoryApiUrl = 'https://www.hamichlol.org.il/w/api.php';
       const params = new URLSearchParams({
         action: 'query',
         format: 'json',
         list: 'allcategories',
         acprefix: query.trim(),
+        q:query.trim(),
         aclimit: '10',
         acprop: 'size',
         origin: '*'
@@ -161,7 +158,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     }
   };
 
-  // פונקציה לקבלת דפים מקטגוריה - מתוקנת
+  // פונקציה לקבלת דפים מקטגוריה - עם Action API נכון
   const getCategoryPages = async (
     categoryName: string,
     searchTerm?: string,
@@ -170,6 +167,7 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     try {
       console.log(`📂 מחפש דפים בקטגוריה "${categoryName}"${searchTerm ? ` עם מונח "${searchTerm}"` : ''}`);
       
+      // ✅ שימוש ב-Action API הנכון לחיפוש בקטגוריות
       const categoryApiUrl = 'https://www.hamichlol.org.il/w/api.php';
       const params = new URLSearchParams({
         action: 'query',
@@ -223,21 +221,50 @@ const MediaWikiSearch: React.FC<MediaWikiSearchProps> = ({
     }
   };
 
-  // פונקציה לחיפוש דפים רגיל
+  // פונקציה לחיפוש דפים רגיל - עם REST API הנכון
   const searchPagesRegular = async (query: string): Promise<SearchResult[]> => {
     try {
+      console.log(`🔍 מחפש דפים: "${query}"`);
       
+      // ✅ שימוש ב-REST API הנכון לחיפוש דפים
+      // baseApiUrl צריך להיות: https://www.hamichlol.org.il/w/rest.php/v1/search/title
       const searchUrl = baseApiUrl;
       const params = new URLSearchParams({
-        q: query.trim(),
+        q: query.trim(),  // הפרמטר הנדרש ל-REST API
         limit: '10'
       });
 
       const fullUrl = `${searchUrl}?${params.toString()}`;
+      console.log('🌐 URL חיפוש מלא:', fullUrl);
 
-      const data: SearchResponse = await fetchWithCorsHandling(fullUrl);
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
 
-      return data.pages || [];
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('📥 תשובת חיפוש:', data);
+
+      // REST API מחזיר מבנה שונה מ-Action API
+      if (data.pages) {
+        return data.pages.map((page: any) => ({
+          id: page.id || Math.random(),
+          key: page.key || page.title,
+          title: page.title,
+          excerpt: page.excerpt || page.description,
+          description: page.description,
+          thumbnail: page.thumbnail
+        }));
+      }
+
+      return [];
 
     } catch (error) {
       console.error('❌ שגיאה בחיפוש רגיל:', error);

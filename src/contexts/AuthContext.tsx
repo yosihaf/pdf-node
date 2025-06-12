@@ -11,12 +11,15 @@ export interface User {
   createdAt: string;
 }
 
+// עדכון AuthContextType
 export interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>; // ← שונה: בלי credential
+  handleGoogleAuthCallback: (code: string, state: string) => Promise<void>; // ← חדש
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
@@ -65,14 +68,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (savedToken && savedUser) {
           const userData = JSON.parse(savedUser);
-          
+
           // בדיקה שהטוקן עדיין תקף
           const isValid = await validateToken(savedToken);
-          
+
           if (isValid) {
             setToken(savedToken);
             setUser(userData);
-            
+
 
           } else {
             // טוקן לא תקף - נקה את הנתונים
@@ -94,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const validateToken = async (token: string): Promise<boolean> => {
     try {
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pdf.test.hamichlol.org.il/api';
-      
+
       const response = await fetch(`${API_BASE_URL}/auth/validate`, {
         method: 'GET',
         headers: {
@@ -138,11 +141,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // שמירת נתוני האימות
       setToken(data.token);
       setUser(data.user);
-      
+
       // שמירה ב-localStorage
       localStorage.setItem('auth_token', data.token);
       localStorage.setItem('user_data', JSON.stringify(data.user));
-      
+
 
 
     } catch (error) {
@@ -181,11 +184,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // שמירת נתוני האימות (התחברות אוטומטית לאחר הרשמה)
       setToken(data.token);
       setUser(data.user);
-      
+
       // שמירה ב-localStorage
       localStorage.setItem('auth_token', data.token);
       localStorage.setItem('user_data', JSON.stringify(data.user));
-      
+
 
 
     } catch (error) {
@@ -219,17 +222,73 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user_data');
   };
 
+  const loginWithGoogle = async (): Promise<void> => {
+    try {
+      setIsLoading(true);
 
+      // שלב 1: קבלת URL להתחברות
+      const { initiateGoogleAuth } = await import('../services/apiService');
+      const { authorization_url, state } = await initiateGoogleAuth();
 
+      // שמירת state לצורך אימות מאוחר יותר
+      localStorage.setItem('google_oauth_state', state);
+
+      // שלב 2: הפניה לגוגל
+      window.location.href = authorization_url;
+
+    } catch (error) {
+      console.error('שגיאה בהתחלת אימות Google:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleGoogleAuthCallback = async (code: string, state: string): Promise<void> => {
+    try {
+      setIsLoading(true);
+
+      // בדיקת state
+      const savedState = localStorage.getItem('google_oauth_state');
+      if (state !== savedState) {
+        throw new Error('שגיאת אבטחה: state לא תואם');
+      }
+
+      // השלמת התהליך
+      const { handleGoogleCallback } = await import('../services/apiService');
+      const data = await handleGoogleCallback(code, state);
+
+      if (!data.access_token) {
+        throw new Error('לא התקבל טוקן אימות מהשרת');
+      }
+
+      // שמירת נתוני האימות
+      setToken(data.access_token);
+      setUser(data.user);
+
+      localStorage.setItem('auth_token', data.access_token);
+      localStorage.setItem('user_data', JSON.stringify(data.user));
+      localStorage.removeItem('google_oauth_state'); // ניקוי
+
+      console.log('✅ התחברות Google הושלמה בהצלחה');
+
+    } catch (error) {
+      console.error('שגיאה בהשלמת אימות Google:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const value: AuthContextType = {
     user,
     token,
     isAuthenticated: !!user && !!token,
     isLoading,
     login,
+    loginWithGoogle, // ← הוסף את זה
     register,
     logout,
-    updateUser
+    updateUser,
+    handleGoogleAuthCallback
   };
 
   return (

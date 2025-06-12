@@ -1,0 +1,131 @@
+/* src/components/Auth/GoogleLoginButton/GoogleLoginButton.css */
+
+.google-login-container {
+  width: 100%;
+  margin: 1rem 0;
+  direction: ltr; /* Google button תמיד משמאל לימין */
+}
+
+/* עיצוב מותאם אישית לכפתור Google הרשמי */
+.google-login-container > div {
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+.google-login-container button[data-google-button] {
+  width: 100% !important;
+  justify-content: center !important;
+  font-family: inherit !important;
+  border-radius: 0.5rem !important;
+  font-size: 1rem !important;
+  padding: 0.875rem 1.5rem !important;
+  min-height: 50px !important;
+}
+
+/* כפתור טעינה/disabled מותאם אישית */
+.google-oauth-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border: 2px solid #dadce0;
+  border-radius: 0.5rem;
+  background: white;
+  color: #3c4043;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-family: inherit;
+  min-height: 50px;
+}
+
+.google-oauth-button:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #dadce0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.google-oauth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  background: #f8f9fa;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #4285f4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* התאמה למובייל */
+@media (max-width: 480px) {
+  .google-login-container button[data-google-button] {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9rem !important;
+    min-height: 45px !important;
+  }
+  
+  .google-oauth-button {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    min-height: 45px;
+  }
+}
+
+/* וידוא שהכפתור נראה טוב גם ב-RTL */
+[dir="rtl"] .google-login-container {
+  direction: ltr; /* כפתור Google תמיד LTR */
+}
+
+/* עיצוב הכפתור בהתאם לנושא כהה/בהיר */
+@media (prefers-color-scheme: dark) {
+  .google-login-container button[data-google-button] {
+    border-color: #5f6368 !important;
+    background: #202124 !important;
+    color: #e8eaed !important;
+  }
+  
+  .google-oauth-button {
+    border-color: #5f6368;
+    background: #202124;
+    color: #e8eaed;
+  }
+}
+
+/* תיקון לגודל הכפתור */
+.google-login-container > div {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.google-login-container iframe {
+  width: 100% !important;
+}
+
+/* וידוא שהטקסט בכפתור מיושר למרכז */
+.google-login-container button {
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* עיצוב נוסף לכפתור הטעינה */
+.google-oauth-button span {
+  margin-right: 0.5rem;
+}

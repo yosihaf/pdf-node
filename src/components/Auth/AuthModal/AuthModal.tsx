@@ -1,5 +1,8 @@
 // src/components/Auth/AuthModal/AuthModal.tsx
 import React, { useState } from 'react';
+import GoogleLoginButton from '../GoogleLoginButton/GoogleLoginButton';
+import { useAuth } from '../../../contexts/AuthContext';
+
 import './AuthModal.css';
 
 interface AuthModalProps {
@@ -21,7 +24,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
-
+  const { loginWithGoogle } = useAuth();
   // הגבלת הדומיין המותר
   const ALLOWED_DOMAIN = 'cti.org.il';
   const MIN_PASSWORD_LENGTH = 8;
@@ -31,16 +34,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
     if (!email) {
       return 'נדרש כתובת מייל';
     }
-    
+
     if (!email.includes('@')) {
       return 'כתובת מייל לא תקינה';
     }
-    
+
     const domain = email.split('@')[1];
     if (domain !== ALLOWED_DOMAIN) {
       return `רק מיילים מדומיין ${ALLOWED_DOMAIN} מורשים להירשם`;
     }
-    
+
     return null;
   };
 
@@ -49,11 +52,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
     if (!password) {
       return 'נדרשת סיסמה';
     }
-    
+
     if (password.length < MIN_PASSWORD_LENGTH) {
       return `הסיסמה חייבת להכיל לפחות ${MIN_PASSWORD_LENGTH} תווים`;
     }
-    
+
     return null;
   };
 
@@ -87,7 +90,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
   // טיפול בשליחת הטופס
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -98,14 +101,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
     try {
       const endpoint = isRegistering ? '/auth/register' : '/auth/login';
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pdf.test.hamichlol.org.il/api';
-      
-      const requestBody = isRegistering 
+
+      const requestBody = isRegistering
         ? { email, password, confirm_password: confirmPassword }
         : { email, password };
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -146,7 +149,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
         errorData.detail.forEach((error: any) => {
           const field = error.loc?.[error.loc.length - 1];
           const message = error.msg;
-          
+
           if (field === 'email') {
             newErrors.email = message;
           } else if (field === 'password') {
@@ -185,6 +188,33 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
     resetForm();
     onClose();
   };
+
+  const handleGoogleSuccess = async (credential: string) => {
+    try {
+      setLoading(true);
+      setErrors({});
+
+      await loginWithGoogle(credential);
+
+      onClose();
+      resetForm();
+
+    } catch (error) {
+      setErrors({
+        general: error instanceof Error ? error.message : 'שגיאה באימות Google'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleFailure = (error: any) => {
+    console.error('שגיאה באימות Google:', error);
+    setErrors({
+      general: 'שגיאה באימות Google. אנא נסה שוב.'
+    });
+  };
+
 
   if (!isOpen) return null;
 
@@ -262,8 +292,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
             )}
 
             {/* כפתור שליחה */}
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="submit-button"
               disabled={loading}
             >
@@ -276,18 +306,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
                 isRegistering ? 'הירשם' : 'התחבר'
               )}
             </button>
+            <div className="social-login-section">
+              <div className="divider">
+                <span>או</span>
+              </div>
+
+              <GoogleLoginButton
+                onSuccess={handleGoogleSuccess}
+                onFailure={handleGoogleFailure}
+                disabled={loading}
+                loading={loading}
+              />
+            </div>
           </form>
 
           {/* מעבר בין מצבים */}
           <div className="mode-toggle">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={toggleMode}
               className="toggle-button"
               disabled={loading}
             >
-              {isRegistering 
-                ? 'כבר יש לך חשבון? התחבר כאן' 
+              {isRegistering
+                ? 'כבר יש לך חשבון? התחבר כאן'
                 : 'אין לך חשבון? הירשם כאן'
               }
             </button>

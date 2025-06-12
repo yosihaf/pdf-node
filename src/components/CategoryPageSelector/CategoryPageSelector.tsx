@@ -26,18 +26,18 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
   const [categoryPages, setCategoryPages] = useState<CategoryPage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // שינוי: הפרדת state לשני שדות חיפוש נפרדים
   const [categorySearchTerm, setCategorySearchTerm] = useState<string>(''); // חיפוש קטגוריות
   const [pagesFilterTerm, setPagesFilterTerm] = useState<string>(''); // סינון דפים
-  
+
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [showCategorySuggestions, setShowCategorySuggestions] = useState<boolean>(false);
 
   // חיפוש קטגוריות
   const searchCategories = async (query: string): Promise<string[]> => {
     if (!query.trim() || query.length < 2) return [];
-
+    console.log(baseApiUrl)
     try {
       const searchUrl = new URL(baseApiUrl);
       searchUrl.searchParams.set('action', 'query');
@@ -139,7 +139,7 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
   // טיפול בשינוי בשדה חיפוש הקטגוריות
   const handleCategorySearchChange = async (value: string) => {
     setCategorySearchTerm(value); // עדכון state נפרד לחיפוש קטגוריות
-    
+
     if (value.length >= 2) {
       const categories = await searchCategories(value);
       setAvailableCategories(categories);
@@ -157,9 +157,9 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
 
   // טיפול בסימון/ביטול sימון דף בודד
   const togglePageSelection = (pageId: number) => {
-    setCategoryPages(prev => 
-      prev.map(page => 
-        page.pageid === pageId 
+    setCategoryPages(prev =>
+      prev.map(page =>
+        page.pageid === pageId
           ? { ...page, selected: !page.selected }
           : page
       )
@@ -168,14 +168,14 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
 
   // בחירת כל הדפים
   const selectAllPages = () => {
-    setCategoryPages(prev => 
+    setCategoryPages(prev =>
       prev.map(page => ({ ...page, selected: true }))
     );
   };
 
   // ביטול בחירת כל הדפים
   const deselectAllPages = () => {
-    setCategoryPages(prev => 
+    setCategoryPages(prev =>
       prev.map(page => ({ ...page, selected: false }))
     );
   };
@@ -202,7 +202,7 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
   return (
     <div className="category-page-selector">
       <h3>בחירת דפים מקטגוריה</h3>
-      
+
       {/* בחירת קטגוריה */}
       <div className="category-search-container">
         <label htmlFor="category-search">חפש קטגוריה:</label>
@@ -216,7 +216,7 @@ const CategoryPageSelector: React.FC<CategoryPageSelectorProps> = ({
             disabled={disabled}
             className="category-search-input"
           />
-          
+
           {showCategorySuggestions && availableCategories.length > 0 && (
             <div className="category-suggestions">
               {availableCategories.map((category, index) => (

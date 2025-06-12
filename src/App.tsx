@@ -1,6 +1,7 @@
-// src/App.tsx - גרסה מתוקנת עם AuthContext
+// src/App.tsx - ודא שהקוד הזה נכון
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google'; // ← ודא שהייבוא הזה קיים
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/Layout/Header';
 import HomePage from './pages/HomePage';
@@ -136,12 +137,30 @@ const AppContent: React.FC = () => {
   );
 };
 
-// הרכיב הראשי עם AuthProvider
+// הרכיב הראשי עם GoogleOAuthProvider ו-AuthProvider
 const App: React.FC = () => {
+  // ← הקוד החשוב ביותר כאן:
+  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  
+  console.log('Google Client ID:', clientId); // ← הוסף את זה לבדיקה
+  
+  if (!clientId) {
+    console.error('❌ REACT_APP_GOOGLE_CLIENT_ID לא מוגדר ב-.env');
+    // במקום לזרוק שגיאה, נציג הודעה למשתמש
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <h2>שגיאה בהגדרות Google OAuth</h2>
+        <p>נדרש להגדיר REACT_APP_GOOGLE_CLIENT_ID בקובץ .env</p>
+      </div>
+    );
+  }
+
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={clientId}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 };
 

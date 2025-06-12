@@ -165,7 +165,7 @@ const UrlInput: React.FC<UrlInputProps> = ({ onSubmit, isLoading }) => {
           </p>
           
           <CategoryPageSelector
-            baseApiUrl={config.mediaWiki.searchApiUrl}
+            baseApiUrl={config.mediaWiki.apiUrl}
             onPagesSelected={handleCategoryPagesSelect}
             disabled={isLoading}
           />

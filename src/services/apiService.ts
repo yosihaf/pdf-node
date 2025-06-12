@@ -645,3 +645,208 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
     throw error;
   }
 };
+/**
+ * התחלת תהליך אימות Google - קבלת URL
+ */
+export const initiateGoogleAuth = async (): Promise<{
+  authorization_url: string;
+  state: string;
+}> => {
+  try {
+    console.log('🔐 מתחיל תהליך אימות Google');
+
+    const response = await axios.post(`${API_BASE_URL}/auth/google`, {}, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('✅ קיבלתי URL להתחברות:', response.data);
+    return response.data; // { authorization_url, state }
+  } catch (error) {
+    console.error('❌ שגיאה בהתחלת אימות Google:', error);
+    throw new Error('שגיאה בהפניה לאימות Google');
+  }
+};
+
+/**
+ * טיפול ב-callback מ-Google (לאחר ההפניה)
+ */
+export const handleGoogleCallback = async (code: string, state: string): Promise<{
+  access_token: string;
+  user: any;
+}> => {
+  try {
+    console.log('🔄 מטפל ב-callback מ-Google');
+
+    const response = await axios.post(`${API_BASE_URL}/auth/google/callback`, {
+      code,
+      state
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('✅ התחברות Google הושלמה');
+    return response.data; // { access_token, user }
+  } catch (error) {
+    console.error('❌ שגיאה ב-callback של Google:', error);
+    throw error;
+  }
+};
+
+/**
+ * פונקציה לפענוח JWT token מ-Google (צד קליינט)
+ */
+const decodeGoogleToken = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('שגיאה בפענוח Google token:', error);
+    return null;
+  }
+};
+
+/**
+ * אימות עם Google OAuth (גרסה חדשה)
+ */
+export const loginWithGoogle = async (credential: string): Promise<{
+  access_token: string;
+  user: any;
+}> => {
+  try {
+    console.log('🔐 מנסה להתחבר עם Google OAuth');
+
+    // פענוח הטוקן לצורך debug (אופציונלי)
+    const decodedToken = decodeGoogleToken(credential);
+    console.log('Google token decoded:', decodedToken);
+
+    const response = await axios.post(`${API_BASE_URL}/auth/google`, {
+      credential: credential
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('✅ התחברות Google הצליחה');
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ שגיאה בהתחברות Google:', error);
+
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 400) {
+        throw new Error('טוקן Google לא תקין');
+      } else if (error.response?.status === 403) {
+        throw new Error('המשתמש לא מורשה להתחבר למערכת');
+      } else if (error.response?.status === 401) {
+        throw new Error('פרטי האימות שגויים');
+      } else if (error.response) {
+        const errorMessage = error.response.data?.message || error.response.data?.detail || 'שגיאה באימות Google';
+        throw new Error(errorMessage);
+      }
+    }
+
+    throw new Error('שגיאה בלתי צפויה באימות Google');
+  }
+};
+
+/**
+ * הרשמה עם Google OAuth (גרסה חדשה)
+ */
+export const registerWithGoogle = async (credential: string): Promise<{
+  access_token: string;
+  user: any;
+}> => {
+  try {
+    console.log('📝 מנסה להירשם עם Google OAuth');
+
+    const response = await axios.post(`${API_BASE_URL}/auth/google/register`, {
+      credential: credential
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('✅ הרשמה Google הצליחה');
+    return response.data;
+  } catch (error) {
+    console.error('❌ שגיאה בהרשמה Google:', error);
+
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 409) {
+        throw new Error('המשתמש כבר קיים במערכת');
+      } else if (error.response?.status === 400) {
+        throw new Error('נתוני Google לא תקינים');
+      } else if (error.response) {
+        const errorMessage = error.response.data?.message || error.response.data?.detail || 'שגיאה בהרשמה Google';
+        throw new Error(errorMessage);
+      }
+    }
+
+    throw new Error('שגיאה בלתי צפויה בהרשמה Google');
+  }
+};
+
+/**
+ * קישור חשבון Google למשתמש קיים
+ */
+export const linkGoogleAccount = async (credential: string): Promise<void> => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('נדרש אימות למערכת');
+    }
+
+    console.log('🔗 מקשר חשבון Google למשתמש קיים');
+
+    const response = await axios.post(`${API_BASE_URL}/auth/google/link`, {
+      credential: credential
+    }, {
+      headers: getAuthHeaders()
+    });
+
+    console.log('✅ חשבון Google קושר בהצלחה');
+    return response.data;
+  } catch (error) {
+    console.error('❌ שגיאה בקישור חשבון Google:', error);
+    throw error;
+  }
+};
+
+/**
+ * ניתוק חשבון Google
+ */
+export const unlinkGoogleAccount = async (): Promise<void> => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('נדרש אימות למערכת');
+    }
+
+    console.log('🔓 מנתק חשבון Google');
+
+    const response = await axios.delete(`${API_BASE_URL}/auth/google/unlink`, {
+      headers: getAuthHeaders()
+    });
+
+    console.log('✅ חשבון Google נותק בהצלחה');
+    return response.data;
+  } catch (error) {
+    console.error('❌ שגיאה בניתוק חשבון Google:', error);
+    throw error;
+  }
+};
