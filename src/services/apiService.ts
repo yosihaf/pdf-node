@@ -647,7 +647,7 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
 };
 /**
  * התחלת תהליך אימות Google - קבלת URL
- */
+ 
 export const initiateGoogleAuth = async (): Promise<{
   authorization_url: string;
   state: string;
@@ -669,10 +669,10 @@ export const initiateGoogleAuth = async (): Promise<{
     throw new Error('שגיאה בהפניה לאימות Google');
   }
 };
-
+*/
 /**
  * טיפול ב-callback מ-Google (לאחר ההפניה)
- */
+ 
 export const handleGoogleCallback = async (code: string, state: string): Promise<{
   access_token: string;
   user: any;
@@ -697,7 +697,7 @@ export const handleGoogleCallback = async (code: string, state: string): Promise
     throw error;
   }
 };
-
+*/
 /**
  * פונקציה לפענוח JWT token מ-Google (צד קליינט)
  */
@@ -717,19 +717,32 @@ const decodeGoogleToken = (token: string) => {
 };
 
 /**
- * אימות עם Google OAuth (גרסה חדשה)
+ * אימות עם Google OAuth (גרסה מתוקנת עם דיבוג)
  */
 export const loginWithGoogle = async (credential: string): Promise<{
   access_token: string;
   user: any;
 }> => {
   try {
-    console.log('🔐 מנסה להתחבר עם Google OAuth');
+    console.log('🔐 apiService: מתחיל אימות Google');
+    console.log('📏 אורך credential:', credential.length);
 
-    // פענוח הטוקן לצורך debug (אופציונלי)
+    // ✅ פענוח הטוקן לצורך debug
     const decodedToken = decodeGoogleToken(credential);
-    console.log('Google token decoded:', decodedToken);
+    console.log('🔍 נתוני Google מפוענחים:', {
+      email: decodedToken?.email,
+      name: decodedToken?.name,
+      iss: decodedToken?.iss,
+      aud: decodedToken?.aud,
+      domain: decodedToken?.hd // hosted domain
+    });
 
+    // ✅ בדיקה שהטוקן מהדומיין הנכון
+    if (decodedToken?.hd && decodedToken.hd !== 'cti.org.il') {
+      throw new Error(`הטוקן מדומיין לא מורשה: ${decodedToken.hd}`);
+    }
+
+    console.log('📤 שולח בקשה לשרת...');
     const response = await axios.post(`${API_BASE_URL}/auth/google`, {
       credential: credential
     }, {
@@ -739,22 +752,41 @@ export const loginWithGoogle = async (credential: string): Promise<{
       }
     });
 
-    console.log('✅ התחברות Google הצליחה');
+    console.log('📥 תגובה מהשרת:', {
+      status: response.status,
+      hasData: !!response.data,
+      hasAccessToken: !!response.data?.access_token,
+      hasUser: !!response.data?.user
+    });
+
+    console.log('✅ התחברות Google הצליחה דרך apiService');
 
     return response.data;
   } catch (error) {
-    console.error('❌ שגיאה בהתחברות Google:', error);
+    console.error('❌ שגיאה ב-apiService loginWithGoogle:', error);
 
     if (axios.isAxiosError(error)) {
+      console.log('🔍 פרטי שגיאת axios:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
+
       if (error.response?.status === 400) {
         throw new Error('טוקן Google לא תקין');
       } else if (error.response?.status === 403) {
-        throw new Error('המשתמש לא מורשה להתחבר למערכת');
+        throw new Error('רק משתמשים עם כתובת מייל מדומיין @cti.org.il מורשים להתחבר');
       } else if (error.response?.status === 401) {
         throw new Error('פרטי האימות שגויים');
+      } else if (error.response?.status === 500) {
+        throw new Error('שגיאה בשרת. אנא נסה שוב מאוחר יותר');
       } else if (error.response) {
-        const errorMessage = error.response.data?.message || error.response.data?.detail || 'שגיאה באימות Google';
+        const errorMessage = error.response.data?.message || 
+                           error.response.data?.detail || 
+                           `שגיאת שרת: ${error.response.status}`;
         throw new Error(errorMessage);
+      } else if (error.request) {
+        throw new Error('לא ניתן להתחבר לשרת. בדוק את החיבור לאינטרנט.');
       }
     }
 

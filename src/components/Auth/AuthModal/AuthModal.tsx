@@ -189,32 +189,68 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
     onClose();
   };
 
-  const handleGoogleSuccess = async (credential: string) => {
-    try {
-      setLoading(true);
-      setErrors({});
+  // ✅ פונקציה מתוקנת לטיפול בהצלחה של Google
+const handleGoogleSuccess = async (credential: string) => {
+  console.log('🔐 AuthModal: התחיל טיפול ב-Google credential');
+  
+  try {
+    setLoading(true);
+    setErrors({});
 
-      await loginWithGoogle(credential);
+    // ✅ קריאה לפונקציה החדשה באימות
+    console.log('📤 קורא ל-loginWithGoogle...');
+    await loginWithGoogle(credential);
 
-      onClose();
-      resetForm();
+    console.log('✅ AuthModal: אימות Google הושלם בהצלחה');
+    
+    // סגירת המודל
+    onClose();
+    resetForm();
 
-    } catch (error) {
-      setErrors({
-        general: error instanceof Error ? error.message : 'שגיאה באימות Google'
-      });
-    } finally {
-      setLoading(false);
+  } catch (error: any) {
+    console.error('❌ AuthModal: שגיאה באימות Google:', error);
+    
+    // ✅ טיפול מפורט בסוגי שגיאות שונים
+    let errorMessage = 'שגיאה באימות Google';
+    
+    if (error.message) {
+      errorMessage = error.message;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.response?.data?.detail) {
+      errorMessage = error.response.data.detail;
     }
-  };
-
-  const handleGoogleFailure = (error: any) => {
-    console.error('שגיאה באימות Google:', error);
+    
+    // הצגת השגיאה למשתמש
     setErrors({
-      general: 'שגיאה באימות Google. אנא נסה שוב.'
+      general: errorMessage
     });
-  };
+    
+  } finally {
+    setLoading(false);
+  }
+};
 
+const handleGoogleFailure = (error: any) => {
+  console.error('❌ AuthModal: כישלון בGoogle OAuth:', error);
+  
+  let errorMessage = 'שגיאה באימות Google. אנא נסה שוב.';
+  
+  // טיפול בסוגי שגיאות שונים
+  if (error.error === 'domain_not_allowed') {
+    errorMessage = error.message || 'רק משתמשים עם כתובת מייל מדומיין @cti.org.il מורשים להתחבר';
+  } else if (error.error === 'no_credential') {
+    errorMessage = 'לא התקבלו נתוני אימות מגוגל. אנא נסה שוב.';
+  } else if (error.error === 'google_auth_error') {
+    errorMessage = 'שגיאה בתהליך האימות. אנא נסה שוב.';
+  }
+  
+  setErrors({
+    general: errorMessage
+  });
+};
 
   if (!isOpen) return null;
 
